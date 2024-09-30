@@ -20,12 +20,10 @@ const useFirestore = (userID: string) => {
 
   useEffect(() => {
     if (!userID) return;
-
-    // Query Firestore for documents with the specified userID, ordered by timestamp
     const q = query(
       collection(db, "geos"),
       where("truck", "==", userID),
-      orderBy("timestamp", "asc") // Sort by timestamp in ascending order
+      orderBy("timestamp", "asc")
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -40,8 +38,6 @@ const useFirestore = (userID: string) => {
       });
       setLocations(locationList);
     });
-
-    // Clean up the subscription
     return () => unsubscribe();
   }, [userID]);
   console.log(locations);

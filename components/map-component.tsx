@@ -35,8 +35,6 @@ const SelectTruck: React.FC<SelectProps> = ({ onTruckSelected }) => {
 export const MapComponent: React.FC<MapProps> = () => {
   const [truckID, setTruckID] = React.useState<string>("");
   const locations = useFirestore(truckID);
-
-  // Convert location data to an array of coordinate pairs for Polyline
   const pathCoordinates = locations.map((location) => [
     location.lat,
     location.lng,
@@ -52,22 +50,19 @@ export const MapComponent: React.FC<MapProps> = () => {
             width={"100vw"}
             height={"100vh"}
             defaultState={{
-              center: [locations[0].lat, locations[0].lng], // Center map at the first recorded location
+              center: [locations[0].lat, locations[0].lng],
               zoom: 9,
             }}
           >
-            {/* Draw Polyline showing the path of the driver */}
             <Polyline
-              geometry={pathCoordinates} // Array of coordinates representing the path
+              geometry={pathCoordinates}
               options={{
                 balloonCloseButton: true,
-                strokeColor: "#0000FF", // Color of the line
-                strokeWidth: 4, // Thickness of the line
-                strokeOpacity: 0.8, // Opacity of the line
+                strokeColor: "#0000FF",
+                strokeWidth: 4,
+                strokeOpacity: 0.8,
               }}
             />
-
-            {/* Place markers for each location with a timestamp */}
             {locations.map((location, index) => (
               <Placemark
                 key={index}
@@ -77,7 +72,7 @@ export const MapComponent: React.FC<MapProps> = () => {
                 }}
                 options={{
                   preset: "islands#icon",
-                  iconColor: index === locations.length - 1 ? "red" : "blue", // Current location is red, others are blue
+                  iconColor: index === locations.length - 1 ? "red" : "blue",
                 }}
               />
             ))}
