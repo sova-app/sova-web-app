@@ -9,8 +9,32 @@ type MapProps = {
   userID: string;
 };
 
-export const MapComponent: React.FC<MapProps> = ({ userID }) => {
-  const locations = useFirestore(userID);
+type SelectProps = {
+  onTruckSelected: (truck: string) => void;
+};
+
+const SelectTruck: React.FC<SelectProps> = ({ onTruckSelected }) => {
+  const [val, setVal] = React.useState<string>("");
+  const onButtonPressed = () => {
+    onTruckSelected(val);
+  };
+  return (
+    <>
+      <input
+        placeholder="type truck here"
+        className="bg-yellow-100"
+        onChange={(el) => setVal(el.target.value)}
+      />
+      <button className="btn bg-green-100" onClick={onButtonPressed}>
+        Get location
+      </button>
+    </>
+  );
+};
+
+export const MapComponent: React.FC<MapProps> = () => {
+  const [truckID, setTruckID] = React.useState<string>("");
+  const locations = useFirestore(truckID);
 
   // Convert location data to an array of coordinate pairs for Polyline
   const pathCoordinates = locations.map((location) => [
@@ -20,6 +44,7 @@ export const MapComponent: React.FC<MapProps> = ({ userID }) => {
 
   return (
     <YMaps>
+      <SelectTruck onTruckSelected={setTruckID} />
       <div>
         My awesome application with maps!
         {locations.length > 0 && (
