@@ -1,22 +1,47 @@
-'use client'
+"use client";
 
-import { Truck, Ticket, Menu, Bell, Search, User } from "lucide-react"
-import Link from "next/link"
+import { Truck, Ticket, Bell, Search, User } from "lucide-react";
+import Link from "next/link";
 
 interface TicketProps {
-  id: string
-  title: string
-  status: "Open" | "In Progress" | "Closed"
-  assignedTruck: string
+  id: string;
+  title: string;
+  status: "Open" | "In Progress" | "Closed";
+  assignedTruck: string;
 }
 
 const tickets: TicketProps[] = [
-  { id: "T001", title: "Delivery to New York", status: "Open", assignedTruck: "TR-101" },
-  { id: "T002", title: "Pickup from Chicago", status: "In Progress", assignedTruck: "TR-102" },
-  { id: "T003", title: "Return to Depot", status: "Closed", assignedTruck: "TR-103" },
-  { id: "T004", title: "Emergency Delivery", status: "Open", assignedTruck: "TR-104" },
-  { id: "T005", title: "Maintenance Required", status: "In Progress", assignedTruck: "TR-105" },
-]
+  {
+    id: "T001",
+    title: "Delivery to New York",
+    status: "Open",
+    assignedTruck: "TR-101",
+  },
+  {
+    id: "T002",
+    title: "Pickup from Chicago",
+    status: "In Progress",
+    assignedTruck: "TR-102",
+  },
+  {
+    id: "T003",
+    title: "Return to Depot",
+    status: "Closed",
+    assignedTruck: "TR-103",
+  },
+  {
+    id: "T004",
+    title: "Emergency Delivery",
+    status: "Open",
+    assignedTruck: "TR-104",
+  },
+  {
+    id: "T005",
+    title: "Maintenance Required",
+    status: "In Progress",
+    assignedTruck: "TR-105",
+  },
+];
 
 export function Dashboard() {
   return (
@@ -63,7 +88,9 @@ export function Dashboard() {
                       <th className="p-2 text-left font-medium">ID</th>
                       <th className="p-2 text-left font-medium">Title</th>
                       <th className="p-2 text-left font-medium">Status</th>
-                      <th className="p-2 text-left font-medium">Assigned Truck</th>
+                      <th className="p-2 text-left font-medium">
+                        Assigned Truck
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -97,7 +124,9 @@ export function Dashboard() {
                 {tickets.map((ticket) => (
                   <div key={ticket.id} className="border rounded-lg p-4">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="font-semibold">{ticket.assignedTruck}</span>
+                      <span className="font-semibold">
+                        {ticket.assignedTruck}
+                      </span>
                       <span
                         className={`inline-block px-2 py-1 text-xs font-semibold rounded-full ${
                           ticket.status === "Open"
@@ -119,5 +148,5 @@ export function Dashboard() {
         </main>
       </div>
     </div>
-  )
+  );
 }
