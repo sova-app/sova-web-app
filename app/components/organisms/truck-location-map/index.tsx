@@ -1,13 +1,23 @@
 "use client";
-
-import useFirestore from "@/lib/hooks/useFirestore";
 import { YMaps, Map, Polyline, Placemark } from "@pbe/react-yandex-maps";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { TruckMapLocationProps } from "./types";
+import { useTruckLocationService } from "@/contexts/TruckLocationContext";
+import { TruckLocation } from "@/data/repositories/IRepository";
 
-export const TruckMapLocation = (props: TruckMapLocationProps) => {
+export const TruckLocationMap = (props: TruckMapLocationProps) => {
   const { truckID } = props;
-  const locations = useFirestore(truckID);
+  const [locations, setLocations] = useState<TruckLocation[]>([]);
+  const service = useTruckLocationService();
+  useEffect(() => {
+    const fetchLocations = async () => {
+      const data = await service.getTruckLocations(truckID);
+      setLocations(data);
+    };
+
+    fetchLocations();
+  }, [truckID, service]);
+
   const pathCoordinates = locations.map((location) => [
     location.lat,
     location.lng,
