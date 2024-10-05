@@ -3,14 +3,15 @@
 
 import React from "react";
 import { TruckSelector } from "@/components/molecules/truck-selector";
-import { TruckMapLocation } from "@/components/organisms/truck-map-location";
+import { TruckLocationMap } from "@/components/organisms/truck-location-map";
+import { TruckLocationProvider } from "@/contexts/TruckLocationContext";
 
 export default function TruckLocationPage() {
   const [truckID, setTruckID] = React.useState<string>("");
   return (
-    <>
+    <TruckLocationProvider>
       <TruckSelector onTruckSelected={setTruckID} />
-      <TruckMapLocation truckID={truckID} />
-    </>
+      <TruckLocationMap truckID={truckID} />
+    </TruckLocationProvider>
   );
 }
