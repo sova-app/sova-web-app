@@ -1,7 +1,7 @@
-'use client'
+"use client";
 
-import { Truck, MapPin, BarChart, Shield, Menu } from "lucide-react"
-import Link from "next/link"
+import { Truck, MapPin, BarChart, Shield } from "lucide-react";
+import Link from "next/link";
 
 export function LogisticsLandingComponent() {
   return (
@@ -13,16 +13,28 @@ export function LogisticsLandingComponent() {
           <span className="ml-2 text-2xl font-bold">TruckTrack</span>
         </Link>
         <nav className="ml-auto flex gap-4 sm:gap-6">
-          <Link className="text-sm font-medium hover:underline underline-offset-4" href="#">
+          <Link
+            className="text-sm font-medium hover:underline underline-offset-4"
+            href="#"
+          >
             Features
           </Link>
-          <Link className="text-sm font-medium hover:underline underline-offset-4" href="#">
+          <Link
+            className="text-sm font-medium hover:underline underline-offset-4"
+            href="#"
+          >
             Pricing
           </Link>
-          <Link className="text-sm font-medium hover:underline underline-offset-4" href="#">
+          <Link
+            className="text-sm font-medium hover:underline underline-offset-4"
+            href="#"
+          >
             About
           </Link>
-          <Link className="text-sm font-medium hover:underline underline-offset-4" href="#">
+          <Link
+            className="text-sm font-medium hover:underline underline-offset-4"
+            href="#"
+          >
             Contact
           </Link>
         </nav>
@@ -36,7 +48,8 @@ export function LogisticsLandingComponent() {
                   Track Your Fleet in Real-Time
                 </h1>
                 <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400">
-                  Optimize your logistics with our advanced GPS tracking system. Know where your trucks are, anytime, anywhere.
+                  Optimize your logistics with our advanced GPS tracking system.
+                  Know where your trucks are, anytime, anywhere.
                 </p>
               </div>
               <div className="space-x-4">
@@ -63,21 +76,24 @@ export function LogisticsLandingComponent() {
                 <MapPin className="h-10 w-10 text-gray-900" />
                 <h2 className="text-2xl font-bold">Real-Time Tracking</h2>
                 <p className="text-gray-500 dark:text-gray-400">
-                  Monitor your fleet's location in real-time with our advanced GPS technology.
+                  Monitor your fleet location in real-time with our advanced GPS
+                  technology.
                 </p>
               </div>
               <div className="space-y-3">
                 <BarChart className="h-10 w-10 text-gray-900" />
                 <h2 className="text-2xl font-bold">Performance Analytics</h2>
                 <p className="text-gray-500 dark:text-gray-400">
-                  Gain insights into your fleet's performance with detailed analytics and reports.
+                  Gain insights into your fleet performance with detailed
+                  analytics and reports.
                 </p>
               </div>
               <div className="space-y-3">
                 <Shield className="h-10 w-10 text-gray-900" />
                 <h2 className="text-2xl font-bold">Enhanced Security</h2>
                 <p className="text-gray-500 dark:text-gray-400">
-                  Improve the security of your fleet with instant alerts and geofencing capabilities.
+                  Improve the security of your fleet with instant alerts and
+                  geofencing capabilities.
                 </p>
               </div>
             </div>
@@ -91,7 +107,8 @@ export function LogisticsLandingComponent() {
                   Ready to Optimize Your Fleet?
                 </h2>
                 <p className="mx-auto max-w-[600px] text-gray-500 md:text-xl dark:text-gray-400">
-                  Join thousands of companies already using TruckTrack to revolutionize their logistics.
+                  Join thousands of companies already using TruckTrack to
+                  revolutionize their logistics.
                 </p>
               </div>
               <div className="w-full max-w-sm space-y-2">
@@ -130,5 +147,5 @@ export function LogisticsLandingComponent() {
         </nav>
       </footer>
     </div>
-  )
+  );
 }

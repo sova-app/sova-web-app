@@ -1,7 +1,7 @@
-'use client'
+"use client";
 
-import { Truck, MapPin, BarChart, Shield, Menu } from "lucide-react"
-import Link from "next/link"
+import { Truck, MapPin, BarChart, Shield } from "lucide-react";
+import Link from "next/link";
 
 export function SovaLandingComponent() {
   return (
@@ -13,16 +13,28 @@ export function SovaLandingComponent() {
           <span className="ml-2 text-2xl font-bold">Sova</span>
         </Link>
         <nav className="ml-auto flex gap-4 sm:gap-6">
-          <Link className="text-sm font-medium hover:underline underline-offset-4" href="#">
+          <Link
+            className="text-sm font-medium hover:underline underline-offset-4"
+            href="#"
+          >
             Features
           </Link>
-          <Link className="text-sm font-medium hover:underline underline-offset-4" href="#">
+          <Link
+            className="text-sm font-medium hover:underline underline-offset-4"
+            href="#"
+          >
             Pricing
           </Link>
-          <Link className="text-sm font-medium hover:underline underline-offset-4" href="#">
+          <Link
+            className="text-sm font-medium hover:underline underline-offset-4"
+            href="#"
+          >
             About
           </Link>
-          <Link className="text-sm font-medium hover:underline underline-offset-4" href="#">
+          <Link
+            className="text-sm font-medium hover:underline underline-offset-4"
+            href="#"
+          >
             Contact
           </Link>
         </nav>
@@ -36,7 +48,8 @@ export function SovaLandingComponent() {
                   Elevate Your Fleet Management
                 </h1>
                 <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400">
-                  Sova delivers cutting-edge GPS tracking solutions. Optimize your logistics with real-time insights and advanced analytics.
+                  Sova delivers cutting-edge GPS tracking solutions. Optimize
+                  your logistics with real-time insights and advanced analytics.
                 </p>
               </div>
               <div className="space-x-4">
@@ -63,21 +76,24 @@ export function SovaLandingComponent() {
                 <MapPin className="h-10 w-10 text-gray-900" />
                 <h2 className="text-2xl font-bold">Real-Time Tracking</h2>
                 <p className="text-gray-500 dark:text-gray-400">
-                  Monitor your fleet's location in real-time with Sova's advanced GPS technology.
+                  Monitor your fleets location in real-time with Sovas advanced
+                  GPS technology.
                 </p>
               </div>
               <div className="space-y-3">
                 <BarChart className="h-10 w-10 text-gray-900" />
                 <h2 className="text-2xl font-bold">Performance Analytics</h2>
                 <p className="text-gray-500 dark:text-gray-400">
-                  Gain actionable insights into your fleet's performance with Sova's detailed analytics and reports.
+                  Gain actionable insights into your fleets performance with
+                  Sovas detailed analytics and reports.
                 </p>
               </div>
               <div className="space-y-3">
                 <Shield className="h-10 w-10 text-gray-900" />
                 <h2 className="text-2xl font-bold">Enhanced Security</h2>
                 <p className="text-gray-500 dark:text-gray-400">
-                  Boost your fleet's security with Sova's instant alerts and advanced geofencing capabilities.
+                  Boost your fleets security with Sovas instant alerts and
+                  advanced geofencing capabilities.
                 </p>
               </div>
             </div>
@@ -91,7 +107,8 @@ export function SovaLandingComponent() {
                   Ready to Transform Your Logistics?
                 </h2>
                 <p className="mx-auto max-w-[600px] text-gray-500 md:text-xl dark:text-gray-400">
-                  Join the growing network of companies leveraging Sova to revolutionize their fleet management.
+                  Join the growing network of companies leveraging Sova to
+                  revolutionize their fleet management.
                 </p>
               </div>
               <div className="w-full max-w-sm space-y-2">
@@ -106,7 +123,7 @@ export function SovaLandingComponent() {
                   </button>
                 </form>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Stay updated on Sova's latest features and exclusive offers.{" "}
+                  Stay updated on Sovas latest features and exclusive offers.{" "}
                   <Link className="underline underline-offset-2" href="#">
                     Terms & Conditions
                   </Link>
@@ -130,5 +147,5 @@ export function SovaLandingComponent() {
         </nav>
       </footer>
     </div>
-  )
+  );
 }
