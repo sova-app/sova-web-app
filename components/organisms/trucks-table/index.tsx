@@ -31,7 +31,7 @@ export function TrucksTable() {
                 Get Started
               </Link>
             </div>
-            <p className="text-sm text-gray-600">Fucking {truck.name}</p>
+            <p className="text-sm text-gray-600">{truck.name}</p>
           </div>
         ))}
       </div>
