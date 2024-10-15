@@ -1,5 +1,4 @@
-import TruckLocationPage from "@/components/pages/truck-location-page";
-
+import { HomePage } from "@/components/pages/home-page";
 export default function Page() {
-  return <TruckLocationPage />;
+  return <HomePage />;
 }

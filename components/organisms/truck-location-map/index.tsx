@@ -48,9 +48,11 @@ export const TruckLocationMap = (props: TruckMapLocationProps) => {
                 key={index}
                 geometry={[location.lat, location.lng]}
                 properties={{
-                  balloonContent: `Timestamp: ${location.timestamp.toLocaleString()}`,
+                  balloonContent: `Timestamp: 123`,
                 }}
                 options={{
+                  hasBalloon: true,
+                  balloonCloseButton: true,
                   preset: "islands#icon",
                   iconColor: index === locations.length - 1 ? "red" : "blue",
                 }}
