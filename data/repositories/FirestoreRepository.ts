@@ -1,4 +1,4 @@
-import { IRepository, TruckLocation } from "./IRepository";
+import { IRepository, Truck, TruckLocation } from "./IRepository";
 import { collection, query, where, orderBy, getDocs } from "firebase/firestore";
 import { db } from "@/firebase";
 
@@ -21,5 +21,19 @@ export class FirestoreRepository implements IRepository {
       });
     });
     return locations;
+  }
+
+  async getTrucks(): Promise<Truck[]> {
+    const q = query(collection(db, "trucks"));
+    const querySnapshot = await getDocs(q);
+    const trucks: Truck[] = [];
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      trucks.push({
+        name: data.truck,
+        ID: data.truckid,
+      });
+    });
+    return trucks;
   }
 }
