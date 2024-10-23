@@ -32,7 +32,7 @@ export const TruckLocationMap = (props: TruckMapLocationProps) => {
             height={"100vh"}
             defaultState={{
               center: [locations[0].lat, locations[0].lng],
-              zoom: 9,
+              zoom: 10,
             }}
           >
             <Polyline
@@ -50,9 +50,11 @@ export const TruckLocationMap = (props: TruckMapLocationProps) => {
                 properties={{
                   balloonContent: `Timestamp: 123`,
                 }}
+                modules={["geoObject.addon.balloon", "geoObject.addon.hint"]}
                 options={{
-                  hasBalloon: true,
-                  balloonCloseButton: true,
+                  balloonContentLayout: "Hello world",
+                  balloonPanelMaxMapArea: 1,
+                  openEmptyBalloon: true,
                   preset: "islands#icon",
                   iconColor: index === locations.length - 1 ? "red" : "blue",
                 }}
