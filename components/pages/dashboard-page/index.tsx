@@ -1,12 +1,13 @@
 "use client";
-
 import { TruckLocationMap } from "@/components/organisms/truck-location-map";
 import { TrucksTable } from "@/components/organisms/trucks-table";
 import { TruckLocationProvider } from "@/contexts/TruckLocationContext";
 import { Truck as TruckDTO } from "@/data/repositories/IRepository";
-import { Truck, Ticket, Bell, Search, User } from "lucide-react";
+import { Truck, Bell, Search, User, Ticket } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import styles from "./index.module.scss";
+import classNames from "classnames";
 
 export function Dashboard() {
   const [selectedTruck, setSelectedTruck] = useState<TruckDTO>();
@@ -14,9 +15,7 @@ export function Dashboard() {
   const onTruckSelect = (truck: TruckDTO) => {
     setSelectedTruck(truck);
   };
-  const clearSelectedTruck = () => {
-    setSelectedTruck(undefined);
-  };
+
   return (
     <TruckLocationProvider>
       <div className="flex flex-col min-h-screen">
@@ -39,31 +38,38 @@ export function Dashboard() {
                 href="#"
               >
                 <Truck className="h-4 w-4" />
-                Fleet Overview
+                Trucks
               </Link>
               <Link
                 className="flex items-center gap-2 text-sm font-medium hover:underline underline-offset-4"
                 href="#"
               >
                 <Ticket className="h-4 w-4" />
-                Tickets
+                Orders
+              </Link>
+              <Link
+                className="flex items-center gap-2 text-sm font-medium hover:underline underline-offset-4"
+                href="#"
+              >
+                <Ticket className="h-4 w-4" />
+                Reports
               </Link>
             </nav>
           </aside>
           <main className="flex-1 p-4 md:p-6">
-            <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
-            <button
-              onClick={clearSelectedTruck}
-              className="inline-flex items-center justify-center rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-gray-50 shadow transition-colors hover:bg-gray-900/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950 disabled:pointer-events-none disabled:opacity-50 dark:bg-gray-50 dark:text-gray-900 dark:hover:bg-gray-50/90 dark:focus-visible:ring-gray-300"
-            >
-              Clear
-            </button>
-            <div className="grid gap-6">
-              {selectedTruck ? (
-                <TruckLocationMap truckID={selectedTruck.name} />
-              ) : (
-                <TrucksTable onTruckSelect={onTruckSelect} />
+            <div
+              className={classNames(
+                "relative flex-1",
+                styles.locationMapContainer
               )}
+            >
+              <TruckLocationMap truckID={selectedTruck?.name} />
+              <div
+                className="absolute top-4 left-4 bg-white/90 rounded-lg shadow-lg max-h-[50vh] w-80 overflow-y-auto z-10 p-4"
+                style={{ backdropFilter: "blur(5px)" }}
+              >
+                <TrucksTable onTruckSelect={onTruckSelect} />
+              </div>
             </div>
           </main>
         </div>
