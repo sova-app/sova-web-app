@@ -8,7 +8,7 @@ export const Loader: React.FC<LoaderProps> = ({
   color = "#000",
 }) => {
   return (
-    <div className="flex justify-center items-center">
+    <div className="flex justify-center items-center h-full">
       <LucideLoader className="animate-spin" size={size} color={color} />
     </div>
   );
