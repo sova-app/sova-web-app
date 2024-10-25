@@ -1,6 +1,6 @@
 export function bootstrap(
   initializeApp?: () => void,
-  renderError?: (err: any) => void
+  renderError?: (err: Error) => void
 ) {
   return Promise.resolve()
     .then(() => initializeApp && initializeApp())

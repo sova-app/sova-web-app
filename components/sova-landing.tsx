@@ -1,6 +1,6 @@
 "use client";
 
-import { Truck, MapPin, BarChart, Shield } from "lucide-react";
+import { BarChart as BarChartIcon, MapPin as MapPinIcon, Shield as ShieldIcon, Truck as TruckIcon } from "lucide-react";
 import Link from "next/link";
 
 export function SovaLandingComponent() {
@@ -8,7 +8,7 @@ export function SovaLandingComponent() {
     <div className="flex flex-col min-h-screen">
       <header className="px-4 lg:px-6 h-14 flex items-center">
         <Link className="flex items-center justify-center" href="#">
-          <Truck className="h-6 w-6" />
+          <TruckIcon className="h-6 w-6" />
           <span className="sr-only">Sova Logo</span>
           <span className="ml-2 text-2xl font-bold">Sova</span>
         </Link>
@@ -73,7 +73,7 @@ export function SovaLandingComponent() {
           <div className="container px-4 md:px-6">
             <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-3 lg:gap-12 xl:grid-cols-3">
               <div className="space-y-3">
-                <MapPin className="h-10 w-10 text-gray-900" />
+                <MapPinIcon className="h-10 w-10 text-gray-900" />
                 <h2 className="text-2xl font-bold">Real-Time Tracking</h2>
                 <p className="text-gray-500 dark:text-gray-400">
                   Monitor your fleets location in real-time with Sovas advanced
@@ -81,7 +81,7 @@ export function SovaLandingComponent() {
                 </p>
               </div>
               <div className="space-y-3">
-                <BarChart className="h-10 w-10 text-gray-900" />
+                <BarChartIcon className="h-10 w-10 text-gray-900" />
                 <h2 className="text-2xl font-bold">Performance Analytics</h2>
                 <p className="text-gray-500 dark:text-gray-400">
                   Gain actionable insights into your fleets performance with
@@ -89,7 +89,7 @@ export function SovaLandingComponent() {
                 </p>
               </div>
               <div className="space-y-3">
-                <Shield className="h-10 w-10 text-gray-900" />
+                <ShieldIcon className="h-10 w-10 text-gray-900" />
                 <h2 className="text-2xl font-bold">Enhanced Security</h2>
                 <p className="text-gray-500 dark:text-gray-400">
                   Boost your fleets security with Sovas instant alerts and

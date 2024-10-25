@@ -1,16 +1,16 @@
 "use client";
-import { YMaps, Map, Polyline, Placemark } from "@pbe/react-yandex-maps";
-import React, { useEffect, useRef, useState } from "react";
-import { TruckMapLocationProps } from "./types";
 import { useTruckLocationService } from "@/contexts/TruckLocationContext";
-import { TruckLocation } from "@/data/repositories/IRepository";
+import type { TruckLocation } from "@/data/repositories/IRepository";
+import { Map, Placemark, Polyline, YMaps } from "@pbe/react-yandex-maps";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
+import type { TruckMapLocationProps } from "./types";
 
 export const TruckLocationMap = (props: TruckMapLocationProps) => {
   const { truckID } = props;
   const [locations, setLocations] = useState<TruckLocation[]>([]);
   const service = useTruckLocationService();
-  const mapRef = useRef<any>(null);
+  const mapRef = useRef<ymaps.Map | null>(null);
 
   useEffect(() => {
     if (!truckID) {
@@ -26,9 +26,11 @@ export const TruckLocationMap = (props: TruckMapLocationProps) => {
         }
       } catch (err) {
         // TODO: Make global error handling
-        toast.error(
-          err.message || "An error occurred while fetching truck locations."
-        );
+        if (err instanceof Error) {
+          toast.error(
+            err.message || "An error occurred while fetching truck locations."
+          );
+        }
       }
     };
 
