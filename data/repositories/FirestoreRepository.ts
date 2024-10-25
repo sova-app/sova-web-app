@@ -1,6 +1,7 @@
 import { IRepository, Truck, TruckLocation } from "./IRepository";
 import { collection, query, where, orderBy, getDocs } from "firebase/firestore";
 import { db } from "@/firebase";
+import { ApiError } from "@/apiError";
 
 export class FirestoreRepository implements IRepository {
   async getTruckLocations(truckID: string): Promise<TruckLocation[]> {
@@ -20,6 +21,14 @@ export class FirestoreRepository implements IRepository {
         timestamp: data.timestamp.toDate(),
       });
     });
+    if (!locations || locations.length == 0) {
+      throw new ApiError(
+        500,
+        "There are no records for this specific truck",
+        "200",
+        {}
+      );
+    }
     return locations;
   }
 

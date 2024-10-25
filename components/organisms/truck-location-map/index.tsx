@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { TruckMapLocationProps } from "./types";
 import { useTruckLocationService } from "@/contexts/TruckLocationContext";
 import { TruckLocation } from "@/data/repositories/IRepository";
+import { toast } from "react-toastify";
 
 export const TruckLocationMap = (props: TruckMapLocationProps) => {
   const { truckID } = props;
@@ -16,11 +17,18 @@ export const TruckLocationMap = (props: TruckMapLocationProps) => {
       return;
     }
     const fetchLocations = async () => {
-      const data = await service.getTruckLocations(truckID);
-      setLocations(data);
-      if (mapRef.current && data.length > 0) {
-        const lastLocation = data[data.length - 1];
-        mapRef.current.setCenter([lastLocation.lat, lastLocation.lng]);
+      try {
+        const data = await service.getTruckLocations(truckID);
+        setLocations(data);
+        if (mapRef.current && data.length > 0) {
+          const lastLocation = data[data.length - 1];
+          mapRef.current.setCenter([lastLocation.lat, lastLocation.lng]);
+        }
+      } catch (err) {
+        // TODO: Make global error handling
+        toast.error(
+          err.message || "An error occurred while fetching truck locations."
+        );
       }
     };
 
