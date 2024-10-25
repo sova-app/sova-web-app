@@ -1,6 +1,5 @@
-import { AlertTriangle } from "lucide-react"; // Importing Lucide icon
-import React from "react";
-import { PageLoadFailureProps } from "./types";
+import { AlertTriangle } from "lucide-react";
+import type { PageLoadFailureProps } from "./types";
 
 export function PageLoadFailure(props: PageLoadFailureProps) {
   const defaultMessage = "Failed to load the page.";

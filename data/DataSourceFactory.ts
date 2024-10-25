@@ -1,5 +1,5 @@
-import { IRepository } from "./repositories/IRepository";
 import { FirestoreRepository } from "./repositories/FirestoreRepository";
+import { IRepository } from "./repositories/IRepository";
 
 export class DataSourceFactory {
   static getRepository(): IRepository {

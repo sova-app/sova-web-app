@@ -1,15 +1,15 @@
+import { Loader } from "@/components/molecules/loader";
+import type { Truck } from "@/data/repositories/IRepository";
 import classNames from "classnames";
-import styles from "./index.module.scss";
+import { useState } from "react";
 import { TruckLocationMap } from "../truck-location-map";
 import { TrucksTable } from "../trucks-table";
-import { Truck } from "@/data/repositories/IRepository";
-import { useState } from "react";
-import { Loader } from "@/components/molecules/loader";
-import { Exception } from "sass";
+import styles from "./index.module.scss";
+// import { Exception } from "sass";
 
 export const TruckContent = () => {
   const [selectedTruck, setSelectedTruck] = useState<Truck>();
-  const [isLoading, setLoading] = useState<boolean>(false);
+  const [isLoading] = useState<boolean>(false);
 
   const onTruckSelect = (truck: Truck) => {
     setSelectedTruck(truck);

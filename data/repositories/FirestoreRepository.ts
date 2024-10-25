@@ -1,7 +1,7 @@
-import { IRepository, Truck, TruckLocation } from "./IRepository";
-import { collection, query, where, orderBy, getDocs } from "firebase/firestore";
-import { db } from "@/firebase";
 import { ApiError } from "@/apiError";
+import { db } from "@/firebase";
+import { collection, getDocs, orderBy, query, where } from "firebase/firestore";
+import { IRepository, Truck, TruckLocation } from "./IRepository";
 
 export class FirestoreRepository implements IRepository {
   async getTruckLocations(truckID: string): Promise<TruckLocation[]> {
