@@ -1,4 +1,19 @@
-import { HomePage } from "@/components/pages/home-page";
+"use client";
+
+import { Loader } from "@/components/molecules/loader";
+// import { HomePage } from "@/components/pages/home-page";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 export default function Page() {
-  return <HomePage />;
+  const router = useRouter();
+  useEffect(() => {
+    router.push("/dashboard");
+  }, [router]);
+
+  return (
+    <div className="flex items-center justify-center h-screen">
+      {" "}
+      <Loader size={128} />
+    </div>
+  );
 }

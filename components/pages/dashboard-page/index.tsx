@@ -3,7 +3,7 @@ import { TruckLocationMap } from "@/components/organisms/truck-location-map";
 import { TrucksTable } from "@/components/organisms/trucks-table";
 import { TruckLocationProvider } from "@/contexts/TruckLocationContext";
 import { Truck as TruckDTO } from "@/data/repositories/IRepository";
-import { Truck, Bell, Search, User, Ticket } from "lucide-react";
+import { Truck, Ticket } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import styles from "./index.module.scss";
@@ -25,9 +25,9 @@ export function Dashboard() {
             <span className="ml-2 text-2xl font-bold">Sova</span>
           </Link>
           <nav className="ml-auto flex items-center gap-4 sm:gap-6">
-            <Search className="h-5 w-5" />
+            {/* <Search className="h-5 w-5" />
             <Bell className="h-5 w-5" />
-            <User className="h-5 w-5" />
+            <User className="h-5 w-5" /> */}
           </nav>
         </header>
         <div className="flex flex-1">
