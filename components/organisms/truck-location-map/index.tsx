@@ -9,9 +9,8 @@ export const TruckLocationMap = (props: TruckMapLocationProps) => {
   const { truckID } = props;
   const [locations, setLocations] = useState<TruckLocation[]>([]);
   const service = useTruckLocationService();
-  const mapRef = useRef<any>(null); // Create a ref for the map instance
+  const mapRef = useRef<any>(null);
 
-  // Fetching the locations whenever truckID changes
   useEffect(() => {
     if (!truckID) {
       return;
@@ -21,7 +20,6 @@ export const TruckLocationMap = (props: TruckMapLocationProps) => {
       setLocations(data);
       if (mapRef.current && data.length > 0) {
         const lastLocation = data[data.length - 1];
-        // Center the map on the last truck location
         mapRef.current.setCenter([lastLocation.lat, lastLocation.lng]);
       }
     };
@@ -40,14 +38,13 @@ export const TruckLocationMap = (props: TruckMapLocationProps) => {
         width={"100%"}
         height={"100%"}
         defaultState={{
-          center: [55.751244, 37.618423], // Initial fallback center
+          center: [55.751244, 37.618423],
           zoom: 10,
         }}
         instanceRef={(instance) => {
-          mapRef.current = instance; // Save the map instance to the ref
+          mapRef.current = instance;
         }}
       >
-        {/* Only rerender polyline and placemarks when locations change */}
         {locations.length > 0 && (
           <>
             <Polyline

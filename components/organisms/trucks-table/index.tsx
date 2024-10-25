@@ -9,12 +9,12 @@ export function TrucksTable(props: TrucksTableProps) {
   const { onTruckSelect } = props;
 
   useEffect(() => {
-    const fetchLocations = async () => {
+    const fetchTrucks = async () => {
       const data = await service.getTrucks();
       setTrucks(data);
     };
 
-    fetchLocations();
+    fetchTrucks();
   }, [service]);
 
   return (
