@@ -1,4 +1,5 @@
 "use client";
+import { AuthGuard } from "@/components/app/AuthGuard";
 import { Dashboard } from "@/components/pages/dashboard-page";
 import { withBootstrap } from "@/utils/withBootstrap.js";
 
@@ -9,8 +10,10 @@ import "react-toastify/dist/ReactToastify.css";
 function Page() {
   return (
     <>
-      <Dashboard />
-      <ToastContainer />
+      <AuthGuard requireAuth>
+        <Dashboard />
+        <ToastContainer />
+      </AuthGuard>
     </>
   );
 }

@@ -1,7 +1,6 @@
 "use client";
 
 import { Loader } from "@/components/molecules/loader";
-// import { HomePage } from "@/components/pages/home-page";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 export default function Page() {
