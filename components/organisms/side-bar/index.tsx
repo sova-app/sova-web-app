@@ -7,17 +7,24 @@ export const SideBar = () => {
       <nav className="flex flex-col gap-4 p-4">
         <Link
           className="flex items-center gap-2 text-sm font-medium hover:underline underline-offset-4"
-          href="#"
+          href="/dashboard"
         >
           <TruckIcon className="h-4 w-4" />
-          Trucks
+          Active Trucks
         </Link>
         <Link
           className="flex items-center gap-2 text-sm font-medium hover:underline underline-offset-4"
-          href="#"
+          href="/trucks"
         >
           <TicketIcon className="h-4 w-4" />
-          Orders
+          Manage Trucks
+        </Link>
+        <Link
+          className="flex items-center gap-2 text-sm font-medium hover:underline underline-offset-4"
+          href="/orders"
+        >
+          <TicketIcon className="h-4 w-4" />
+          Manage Orders
         </Link>
       </nav>
     </aside>
