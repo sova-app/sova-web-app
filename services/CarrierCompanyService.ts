@@ -1,6 +1,7 @@
 // TruckLocationService.ts
+import { CreateTruckDto } from "@/dto/createTruckDto";
 import { DataSourceFactory } from "../data/DataSourceFactory";
-import { Truck, TruckFull } from "../data/repositories/IRepository";
+import { Driver, Truck, TruckFull } from "../data/repositories/IRepository";
 
 export class CarrierCompanyService {
   private repository = DataSourceFactory.getRepository();
@@ -9,8 +10,11 @@ export class CarrierCompanyService {
     return await this.repository.getTrucksByCompany(companyID);
   };
 
-  addTruck = async (companyID: string): Promise<Truck[]> => {
-    return await this.repository.addTruckToCompany(companyID);
+  addTruckToCompany = async (
+    companyID: string,
+    truck: CreateTruckDto
+  ): Promise<Truck> => {
+    return await this.repository.addTruckToCompany(companyID, truck);
   };
 
   removeTruck = async (companyID: string): Promise<Truck[]> => {
@@ -19,5 +23,13 @@ export class CarrierCompanyService {
 
   updateTruck = async (companyID: string): Promise<Truck[]> => {
     return await this.repository.updateTruckFromCompany(companyID);
+  };
+
+  getDrivers = async (companyID: string): Promise<Driver[]> => {
+    return await this.repository.getDrivers(companyID);
+  };
+
+  addDriver = async (companyID: string, driver: Driver): Promise<Driver> => {
+    return await this.repository.addDriver(companyID, driver);
   };
 }

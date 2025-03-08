@@ -1,11 +1,16 @@
+import { CreateTruckDto } from "@/dto/createTruckDto";
+
 export interface IRepository {
   getTruckLocations(userID: string): Promise<TruckLocation[]>;
 
   getTrucks(): Promise<Truck[]>;
   getTrucksByCompany(companyID: string): Promise<Truck[]>;
-  addTruckToCompany(companyID: string): Promise<Truck[]>;
+  addTruckToCompany(companyID: string, truck: CreateTruckDto): Promise<Truck>;
   removeTruckFromCompany(companyID: string): Promise<Truck[]>;
   updateTruckFromCompany(companyID: string): Promise<Truck[]>;
+
+  getDrivers(companyID: string): Promise<Driver[]>;
+  addDriver(companyID: string, driver: Driver): Promise<Driver>;
 }
 
 export type TruckLocation = {
@@ -17,12 +22,12 @@ export type TruckLocation = {
 export type Truck = {
   ID: string;
   name: string;
-  driverID: string;
-  companyID: string;
+  driverID?: string;
+  companyID?: string;
 };
 
 export type Driver = {
-  ID: string;
+  ID?: string;
   name: string;
 };
 

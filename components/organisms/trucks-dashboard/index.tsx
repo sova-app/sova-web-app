@@ -13,6 +13,7 @@ import {
 import { HamburgerMenuIcon } from "@radix-ui/react-icons";
 import { Plus, TruckIcon } from "lucide-react";
 import "./index.css";
+import TruckForm from "../new-truck-form";
 
 export const TrucksDashboard = () => {
   const [trucks, setTrucks] = useState<TruckFull[]>([]);
@@ -107,16 +108,16 @@ export const TrucksDashboard = () => {
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"
+          onClick={closeModal}
+        >
+          <div
+            className="bg-white p-6 rounded-lg shadow-lg w-96"
+            onClick={(e) => e.stopPropagation()}
+          >
             <h3 className="text-lg font-bold mb-4">Добавить машину</h3>
-            <button
-              onClick={closeModal}
-              className="absolute top-2 right-2 text-gray-600 hover:text-gray-900"
-            >
-              ✖
-            </button>
-            <p>Форма добавления машины</p>
+            <TruckForm onClose={closeModal} />
           </div>
         </div>
       )}

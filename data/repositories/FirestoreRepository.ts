@@ -1,6 +1,14 @@
 import { ApiError } from "@/apiError";
 import { db } from "@/firebase";
-import { collection, getDocs, orderBy, query, where } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  getDoc,
+  getDocs,
+  orderBy,
+  query,
+  where,
+} from "firebase/firestore";
 import {
   Company,
   Driver,
@@ -9,6 +17,7 @@ import {
   TruckFull,
   TruckLocation,
 } from "./IRepository";
+import { CreateTruckDto } from "@/dto/createTruckDto";
 
 export class FirestoreRepository implements IRepository {
   async getTruckLocations(truckName: string): Promise<TruckLocation[]> {
@@ -54,27 +63,6 @@ export class FirestoreRepository implements IRepository {
       });
     });
     return trucks;
-  }
-
-  async getDriversByIds(driverIDs: string[]): Promise<Record<string, Driver>> {
-    if (driverIDs.length === 0) return {};
-
-    const q = query(
-      collection(db, "drivers"),
-      where("driverid", "in", driverIDs)
-    );
-    const querySnapshot = await getDocs(q);
-
-    const drivers: Record<string, Driver> = {};
-    querySnapshot.forEach((doc) => {
-      const data = doc.data();
-      drivers[data.driverid] = {
-        ID: data.driverid,
-        name: data.name,
-      };
-    });
-
-    return drivers;
   }
 
   async getCompaniesByIds(
@@ -134,8 +122,8 @@ export class FirestoreRepository implements IRepository {
       new Set(trucks.map((t) => t.companyID).filter(Boolean))
     );
 
-    const drivers = await this.getDriversByIds(driverIDs);
-    const companies = await this.getCompaniesByIds(companyIDs);
+    const drivers = await this.getDriversByIds(driverIDs as string[]);
+    const companies = await this.getCompaniesByIds(companyIDs as string[]);
 
     return await Promise.all(
       trucks.map(async (truck) => ({
@@ -147,11 +135,46 @@ export class FirestoreRepository implements IRepository {
     );
   }
 
-  async addTruckToCompany(companyID: string): Promise<Truck[]> {
-    console.log(companyID);
-    const trucks: Truck[] = [];
-    return trucks;
+  async addTruckToCompany(
+    companyID: string,
+    truck: CreateTruckDto
+  ): Promise<Truck> {
+    try {
+      const truckID = Math.random().toString(36).substring(7);
+      const truckRef = await addDoc(collection(db, "trucks"), {
+        truck: truck.name,
+        truckid: truckID,
+      });
+      console.log("Created truck with ID:", truckRef.id);
+
+      const createdTruck = await getDoc(truckRef);
+      const createdTruckData = createdTruck.data();
+
+      await addDoc(collection(db, "company_trucks"), {
+        truckid: createdTruckData!.truckid,
+        companyid: companyID,
+      });
+      console.log("Added truck to company");
+
+      if (truck.driverID) {
+        await addDoc(collection(db, "driver_trucks"), {
+          driverid: truck.driverID,
+          truckid: createdTruckData!.truckid,
+        });
+      }
+      console.log(
+        "Added driver to truck",
+        truck.driverID,
+        createdTruckData!.truckid
+      );
+
+      return { ID: truckRef.id, name: truck.name };
+    } catch (error) {
+      console.error("Ошибка при добавлении грузовика:", error);
+      throw new Error("Не удалось добавить грузовик");
+    }
   }
+
   async removeTruckFromCompany(companyID: string): Promise<Truck[]> {
     console.log(companyID);
     const trucks: Truck[] = [];
@@ -161,5 +184,59 @@ export class FirestoreRepository implements IRepository {
     console.log(companyID);
     const trucks: Truck[] = [];
     return trucks;
+  }
+
+  async getDrivers(companyID: string): Promise<Driver[]> {
+    // TODO SA-100: Implement filtering by companyID
+    console.log(companyID);
+    const q = query(collection(db, "drivers"));
+    const querySnapshot = await getDocs(q);
+    const drivers: Driver[] = [];
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      drivers.push({
+        name: data.name,
+        ID: data.id,
+      });
+    });
+    return drivers;
+  }
+
+  async getDriversByIds(driverIDs: string[]): Promise<Record<string, Driver>> {
+    if (driverIDs.length === 0) return {};
+
+    const q = query(
+      collection(db, "drivers"),
+      where("driverid", "in", driverIDs)
+    );
+    const querySnapshot = await getDocs(q);
+
+    const drivers: Record<string, Driver> = {};
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      drivers[data.driverid] = {
+        ID: data.driverid,
+        name: data.name,
+      };
+    });
+
+    return drivers;
+  }
+
+  async addDriver(companyID: string, driver: Driver): Promise<Driver> {
+    try {
+      const driverRef = await addDoc(collection(db, "drivers"), {
+        name: driver.name,
+      });
+
+      await addDoc(collection(db, "company_drivers"), {
+        driverid: driverRef.id,
+        companyid: companyID,
+      });
+      return { ID: driverRef.id, ...driver };
+    } catch (error) {
+      console.error("Ошибка при добавлении водителя:", error);
+      throw new Error("Не удалось добавить водителя");
+    }
   }
 }
