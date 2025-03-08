@@ -70,17 +70,14 @@ export class FirestoreRepository implements IRepository {
   ): Promise<Record<string, Company>> {
     if (companyIDs.length === 0) return {};
 
-    const q = query(
-      collection(db, "companies"),
-      where("companyid", "in", companyIDs)
-    );
+    const q = query(collection(db, "companies"), where("id", "in", companyIDs));
     const querySnapshot = await getDocs(q);
 
     const companies: Record<string, Company> = {};
     querySnapshot.forEach((doc) => {
       const data = doc.data();
-      companies[data.companyid] = {
-        ID: data.companyid,
+      companies[data.id] = {
+        ID: data.id,
         name: data.name,
       };
     });
@@ -99,42 +96,67 @@ export class FirestoreRepository implements IRepository {
   }
 
   async getTrucksByCompany(companyID: string): Promise<TruckFull[]> {
-    const q = query(
-      collection(db, "trucks"),
+    const companyTrucksQuery = query(
+      collection(db, "company_trucks"),
       where("companyid", "==", companyID)
     );
-    const querySnapshot = await getDocs(q);
+    const companyTrucksSnapshot = await getDocs(companyTrucksQuery);
 
-    const trucks: TruckFull[] = querySnapshot.docs.map((doc) => {
+    const truckIDs = companyTrucksSnapshot.docs.map(
+      (doc) => doc.data().truckid
+    );
+
+    if (truckIDs.length === 0) {
+      return [];
+    }
+
+    const trucksQuery = query(
+      collection(db, "trucks"),
+      where("id", "in", truckIDs)
+    );
+    const trucksSnapshot = await getDocs(trucksQuery);
+
+    const trucks: Truck[] = trucksSnapshot.docs.map((doc) => {
       const data = doc.data();
       return {
-        ID: data.truckid,
+        ID: data.id,
         name: data.truck,
-        driverID: data.driverid,
-        companyID: data.companyid,
       } as Truck;
     });
+    console.log("Fetching trucks by company", trucks);
 
-    const driverIDs = Array.from(
-      new Set(trucks.map((t) => t.driverID).filter(Boolean))
+    const driverTrucksQuery = query(
+      collection(db, "driver_trucks"),
+      where("truckid", "in", truckIDs)
     );
-    const companyIDs = Array.from(
-      new Set(trucks.map((t) => t.companyID).filter(Boolean))
+    const driverTrucksSnapshot = await getDocs(driverTrucksQuery);
+    const driverIDs = driverTrucksSnapshot.docs.map(
+      (doc) => doc.data().driverid
     );
+    console.log("Fetching driver IDs", driverIDs);
+    // I think i want a map [truckID: driverID]
+    const truckDrivers = driverTrucksSnapshot.docs.reduce((acc, doc) => {
+      const data = doc.data();
+      acc[data.truckid] = data.driverid;
+      return acc;
+    }, {} as Record<string, string>);
+    console.log("Fetching truck drivers", truckDrivers);
 
+    // Получаем все записи из drivers, фильтруя по driverid
     const drivers = await this.getDriversByIds(driverIDs as string[]);
-    const companies = await this.getCompaniesByIds(companyIDs as string[]);
+    console.log("Fetching drivers by IDs", drivers);
+    const companies = await this.getCompaniesByIds([companyID]);
+    console.log("Fetching companies by IDs", companies);
 
     return await Promise.all(
       trucks.map(async (truck) => ({
         ...truck,
-        driver: truck.driverID ? drivers[truck.driverID] : undefined,
-        company: truck.companyID ? companies[truck.companyID] : undefined,
+        driver: drivers[truckDrivers[truck.ID]],
+        company: companies[companyID],
         status: await this.getTruckStatus(truck.ID),
       }))
     );
   }
-
   async addTruckToCompany(
     companyID: string,
     truck: CreateTruckDto
@@ -143,7 +165,7 @@ export class FirestoreRepository implements IRepository {
       const truckID = Math.random().toString(36).substring(7);
       const truckRef = await addDoc(collection(db, "trucks"), {
         truck: truck.name,
-        truckid: truckID,
+        id: truckID,
       });
       console.log("Created truck with ID:", truckRef.id);
 
@@ -151,7 +173,7 @@ export class FirestoreRepository implements IRepository {
       const createdTruckData = createdTruck.data();
 
       await addDoc(collection(db, "company_trucks"), {
-        truckid: createdTruckData!.truckid,
+        truckid: createdTruckData!.id,
         companyid: companyID,
       });
       console.log("Added truck to company");
@@ -159,16 +181,16 @@ export class FirestoreRepository implements IRepository {
       if (truck.driverID) {
         await addDoc(collection(db, "driver_trucks"), {
           driverid: truck.driverID,
-          truckid: createdTruckData!.truckid,
+          truckid: createdTruckData!.id,
         });
       }
       console.log(
         "Added driver to truck",
         truck.driverID,
-        createdTruckData!.truckid
+        createdTruckData!.id
       );
 
-      return { ID: truckRef.id, name: truck.name };
+      return { ID: createdTruckData!.id, name: truck.name };
     } catch (error) {
       console.error("Ошибка при добавлении грузовика:", error);
       throw new Error("Не удалось добавить грузовик");
@@ -205,17 +227,14 @@ export class FirestoreRepository implements IRepository {
   async getDriversByIds(driverIDs: string[]): Promise<Record<string, Driver>> {
     if (driverIDs.length === 0) return {};
 
-    const q = query(
-      collection(db, "drivers"),
-      where("driverid", "in", driverIDs)
-    );
+    const q = query(collection(db, "drivers"), where("id", "in", driverIDs));
     const querySnapshot = await getDocs(q);
 
     const drivers: Record<string, Driver> = {};
     querySnapshot.forEach((doc) => {
       const data = doc.data();
-      drivers[data.driverid] = {
-        ID: data.driverid,
+      drivers[data.id] = {
+        ID: data.id,
         name: data.name,
       };
     });

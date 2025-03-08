@@ -22,8 +22,6 @@ export type TruckLocation = {
 export type Truck = {
   ID: string;
   name: string;
-  driverID?: string;
-  companyID?: string;
 };
 
 export type Driver = {

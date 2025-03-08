@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useCarrierService } from "@/contexts/TrucksContext";
 import { toast } from "react-toastify";
 import { TruckFull } from "@/data/repositories/IRepository";
@@ -14,9 +14,11 @@ import { HamburgerMenuIcon } from "@radix-ui/react-icons";
 import { Plus, TruckIcon } from "lucide-react";
 import "./index.css";
 import TruckForm from "../new-truck-form";
+import { Loader } from "@/components/molecules/loader";
 
 export const TrucksDashboard = () => {
   const [trucks, setTrucks] = useState<TruckFull[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setModalOpen] = useState(false);
 
   const openModal = () => setModalOpen(true);
@@ -25,28 +27,27 @@ export const TrucksDashboard = () => {
   const companyID = "some-id-1";
   const service = useCarrierService();
 
-  const goToTruckLocation = (truckName: string) => {
-    // i want to open new page
-    // window.location.href = `/truck-location/${truckID}`;
-    window.open(`/truck-location/${truckName}`, "_blank");
-  };
+  const fetchTrucks = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const data = await service.getTrucksByCompany(companyID);
+      setTrucks(data);
+    } catch (err) {
+      if (err instanceof Error) {
+        toast.error(err.message || "An error occurred while fetching trucks.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  }, [service, companyID]);
 
   useEffect(() => {
-    const fetchTrucks = async () => {
-      try {
-        const data = await service.getTrucks(companyID);
-        setTrucks(data);
-      } catch (err) {
-        if (err instanceof Error) {
-          toast.error(
-            err.message || "An error occurred while fetching trucks."
-          );
-        }
-      }
-    };
-
     fetchTrucks();
-  }, [service]);
+  }, [service, fetchTrucks]);
+
+  const goToTruckLocation = (truckName: string) => {
+    window.open(`/truck-location/${truckName}`, "_blank");
+  };
 
   return (
     <main className="flex-1 p-4 md:p-6">
@@ -54,51 +55,57 @@ export const TrucksDashboard = () => {
         <h2 className="text-xl font-bold mb-4 flex items-center">
           <TruckIcon className="mr-2" /> Список машин
         </h2>
-        <table className="w-full border-collapse border border-gray-300">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="border p-2">Название</th>
-              <th className="border p-2">Текущий водитель</th>
-              <th className="border p-2">Статус</th>
-              <th className="border p-2">Действия</th>
-            </tr>
-          </thead>
-          <tbody>
-            {trucks.map((truck) => (
-              <tr key={truck.ID} className="border">
-                <td className="border p-2">{truck.name}</td>
-                <td className="border p-2">{truck.driver?.name}</td>
-                <td className="border p-2">{truck.status}</td>
-                <td className="border p-2 relative">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <button
-                        className="IconButton"
-                        aria-label="Customise options"
-                      >
-                        <HamburgerMenuIcon />
-                      </button>
-                    </DropdownMenuTrigger>
-
-                    <DropdownMenuPortal>
-                      <DropdownMenuContent
-                        className="DropdownMenuContent"
-                        sideOffset={5}
-                      >
-                        <DropdownMenuItem
-                          onClick={() => goToTruckLocation(truck.name)}
-                          className="DropdownMenuItem"
-                        >
-                          Перейти к машине
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenuPortal>
-                  </DropdownMenu>
-                </td>
+        {isLoading ? (
+          <Loader />
+        ) : trucks.length === 0 ? (
+          <div className="text-center text-gray-500">No records</div>
+        ) : (
+          <table className="w-full border-collapse border border-gray-300">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="border p-2">Название</th>
+                <th className="border p-2">Текущий водитель</th>
+                <th className="border p-2">Статус</th>
+                <th className="border p-2">Действия</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {trucks.map((truck) => (
+                <tr key={truck.ID} className="border">
+                  <td className="border p-2">{truck.name}</td>
+                  <td className="border p-2">{truck.driver?.name}</td>
+                  <td className="border p-2">{truck.status}</td>
+                  <td className="border p-2 relative">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          className="IconButton"
+                          aria-label="Customise options"
+                        >
+                          <HamburgerMenuIcon />
+                        </button>
+                      </DropdownMenuTrigger>
+
+                      <DropdownMenuPortal>
+                        <DropdownMenuContent
+                          className="DropdownMenuContent"
+                          sideOffset={5}
+                        >
+                          <DropdownMenuItem
+                            onClick={() => goToTruckLocation(truck.name)}
+                            className="DropdownMenuItem"
+                          >
+                            Перейти к машине
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenuPortal>
+                    </DropdownMenu>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
         <button
           onClick={openModal}
           className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center hover:bg-blue-700"
@@ -117,7 +124,7 @@ export const TrucksDashboard = () => {
             onClick={(e) => e.stopPropagation()}
           >
             <h3 className="text-lg font-bold mb-4">Добавить машину</h3>
-            <TruckForm onClose={closeModal} />
+            <TruckForm onClose={closeModal} onTruckAdded={fetchTrucks} />
           </div>
         </div>
       )}

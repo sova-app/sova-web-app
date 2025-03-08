@@ -6,7 +6,7 @@ import { Driver, Truck, TruckFull } from "../data/repositories/IRepository";
 export class CarrierCompanyService {
   private repository = DataSourceFactory.getRepository();
 
-  getTrucks = async (companyID: string): Promise<TruckFull[]> => {
+  getTrucksByCompany = async (companyID: string): Promise<TruckFull[]> => {
     return await this.repository.getTrucksByCompany(companyID);
   };
 

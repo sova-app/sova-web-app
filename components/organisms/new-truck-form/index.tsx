@@ -19,8 +19,9 @@ const TruckForm = (props: TruckFormProps) => {
   const [name, setTruckName] = useState("");
   const [driverID, setDriver] = useState<string | null>(null);
   const [drivers, setDrivers] = useState<Driver[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const service = useCarrierService();
-  const { onClose } = props;
+  const { onClose, onTruckAdded } = props;
 
   React.useEffect(() => {
     const fetchDrivers = async () => {
@@ -43,19 +44,23 @@ const TruckForm = (props: TruckFormProps) => {
     event.preventDefault();
     const formData: TruckFormData = { name, driverID };
     const addTruck = async () => {
+      setIsLoading(true);
       try {
         // TODO SA-100, SA-101: Replace "some-id-1" with the actual company ID
         await service.addTruckToCompany("some-id-1", formData);
+        onTruckAdded(); // Обновляем список грузовиков после успешного добавления
+        onClose(); // Закрываем модалку после успешного добавления грузовика
       } catch (err) {
         if (err instanceof Error) {
           toast.error(
             err.message || "An error occurred while adding the truck."
           );
         }
+      } finally {
+        setIsLoading(false);
       }
     };
     addTruck();
-    onClose();
     console.log("Форма отправлена:", formData);
   };
 
@@ -72,6 +77,7 @@ const TruckForm = (props: TruckFormProps) => {
             onChange={(e) => setTruckName(e.target.value)}
             required
             className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            disabled={isLoading}
           />
         </Form.Control>
       </Form.Field>
@@ -80,7 +86,11 @@ const TruckForm = (props: TruckFormProps) => {
         <Form.Label className="block text-sm font-medium">
           Выберите водителя
         </Form.Label>
-        <Select.Root value={driverID || ""} onValueChange={setDriver}>
+        <Select.Root
+          value={driverID || ""}
+          onValueChange={setDriver}
+          disabled={isLoading}
+        >
           <Select.Trigger className="SelectTrigger" aria-label="Food">
             <Select.Value placeholder="Выберите водителя…" />
             <Select.Icon className="SelectIcon">
@@ -115,13 +125,17 @@ const TruckForm = (props: TruckFormProps) => {
       </Form.Field>
       <div className="flex justify-between">
         <Form.Submit asChild>
-          <button className="p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition">
-            Отправить
+          <button
+            className="p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
+            disabled={isLoading}
+          >
+            {isLoading ? "Загрузка..." : "Отправить"}
           </button>
         </Form.Submit>
         <button
           onClick={onClose}
           className="p-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition"
+          disabled={isLoading}
         >
           Закрыть
         </button>
