@@ -1,19 +1,20 @@
 import React, { useEffect, useState } from "react";
-import { MoreVertical, Plus, TruckIcon } from "lucide-react";
 import { useCarrierService } from "@/contexts/TrucksContext";
 import { toast } from "react-toastify";
 import { TruckFull } from "@/data/repositories/IRepository";
 
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuPortal,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@radix-ui/react-dropdown-menu";
+import { HamburgerMenuIcon } from "@radix-ui/react-icons";
+import { Plus, TruckIcon } from "lucide-react";
+import "./index.css";
+
 export const TrucksDashboard = () => {
-  //   const [trucks, ] = useState([
-  //     { id: 1, name: "Volvo FH16", driver: "Иван Петров", status: "Свободный" },
-  //     {
-  //       id: 2,
-  //       name: "Scania R500",
-  //       driver: "Андрей Смирнов",
-  //       status: "На заявке",
-  //     },
-  //   ]);
   const [trucks, setTrucks] = useState<TruckFull[]>([]);
   const [isModalOpen, setModalOpen] = useState(false);
 
@@ -23,14 +24,18 @@ export const TrucksDashboard = () => {
   const companyID = "some-id-1";
   const service = useCarrierService();
 
+  const goToTruckLocation = (truckName: string) => {
+    // i want to open new page
+    // window.location.href = `/truck-location/${truckID}`;
+    window.open(`/truck-location/${truckName}`, "_blank");
+  };
+
   useEffect(() => {
     const fetchTrucks = async () => {
       try {
         const data = await service.getTrucks(companyID);
-        console.log("Data", data);
         setTrucks(data);
       } catch (err) {
-        // TODO: Make global error handling
         if (err instanceof Error) {
           toast.error(
             err.message || "An error occurred while fetching trucks."
@@ -64,9 +69,30 @@ export const TrucksDashboard = () => {
                 <td className="border p-2">{truck.driver?.name}</td>
                 <td className="border p-2">{truck.status}</td>
                 <td className="border p-2 relative">
-                  <button className="p-1">
-                    <MoreVertical size={20} />
-                  </button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button
+                        className="IconButton"
+                        aria-label="Customise options"
+                      >
+                        <HamburgerMenuIcon />
+                      </button>
+                    </DropdownMenuTrigger>
+
+                    <DropdownMenuPortal>
+                      <DropdownMenuContent
+                        className="DropdownMenuContent"
+                        sideOffset={5}
+                      >
+                        <DropdownMenuItem
+                          onClick={() => goToTruckLocation(truck.name)}
+                          className="DropdownMenuItem"
+                        >
+                          Перейти к машине
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenuPortal>
+                  </DropdownMenu>
                 </td>
               </tr>
             ))}

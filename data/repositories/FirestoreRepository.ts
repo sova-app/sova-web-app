@@ -11,10 +11,11 @@ import {
 } from "./IRepository";
 
 export class FirestoreRepository implements IRepository {
-  async getTruckLocations(truckID: string): Promise<TruckLocation[]> {
+  async getTruckLocations(truckName: string): Promise<TruckLocation[]> {
     const q = query(
       collection(db, "geos"),
-      where("truck", "==", truckID),
+      // where("truckid", "==", truckID),
+      where("truck", "==", truckName),
       orderBy("timestamp", "asc")
     );
 
