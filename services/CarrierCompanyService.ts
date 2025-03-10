@@ -1,7 +1,13 @@
 // TruckLocationService.ts
 import { CreateTruckDto } from "@/dto/createTruckDto";
 import { DataSourceFactory } from "../data/DataSourceFactory";
-import { Driver, Truck, TruckFull } from "../data/repositories/IRepository";
+import {
+  Driver,
+  Order,
+  Truck,
+  TruckFull,
+} from "../data/repositories/IRepository";
+import { CreateOrderDto } from "@/dto/createOrderDto";
 
 export class CarrierCompanyService {
   private repository = DataSourceFactory.getRepository();
@@ -31,5 +37,15 @@ export class CarrierCompanyService {
 
   addDriver = async (companyID: string, driver: Driver): Promise<Driver> => {
     return await this.repository.addDriver(companyID, driver);
+  };
+
+  getOrdersByCompany = async (companyID: string): Promise<Order[]> => {
+    return await this.repository.getOrdersByCompany(companyID);
+  };
+  addOrderToCompany = async (
+    companyID: string,
+    order: CreateOrderDto
+  ): Promise<Order> => {
+    return await this.repository.addOrderToCompany(companyID, order);
   };
 }

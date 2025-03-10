@@ -3,21 +3,31 @@ import { db } from "@/firebase";
 import {
   addDoc,
   collection,
+  doc,
   getDoc,
   getDocs,
   orderBy,
   query,
+  serverTimestamp,
+  setDoc,
   where,
 } from "firebase/firestore";
 import {
   Company,
   Driver,
   IRepository,
+  Order,
   Truck,
   TruckFull,
   TruckLocation,
 } from "./IRepository";
 import { CreateTruckDto } from "@/dto/createTruckDto";
+import { CreateOrderDto } from "@/dto/createOrderDto";
+
+const generate_id = () => {
+  const ID = Math.random().toString(36).substring(7);
+  return ID;
+};
 
 export class FirestoreRepository implements IRepository {
   async getTruckLocations(truckName: string): Promise<TruckLocation[]> {
@@ -58,8 +68,6 @@ export class FirestoreRepository implements IRepository {
       trucks.push({
         name: data.truck,
         ID: data.truckid,
-        driverID: data.driverid,
-        companyID: data.companyid,
       });
     });
     return trucks;
@@ -257,5 +265,66 @@ export class FirestoreRepository implements IRepository {
       console.error("Ошибка при добавлении водителя:", error);
       throw new Error("Не удалось добавить водителя");
     }
+  }
+
+  // Orders
+  async getOrdersByCompany(companyID: string): Promise<Order[]> {
+    const q = query(
+      collection(db, "orders"),
+      where("companyid", "==", companyID)
+    );
+    const querySnapshot = await getDocs(q);
+    const orders: Order[] = [];
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      orders.push({
+        ID: data.id,
+        name: data.name,
+        comment: data.comment,
+        status: data.status,
+      });
+    });
+    return orders;
+  }
+
+  async addOrderToCompany(
+    companyID: string,
+    order: CreateOrderDto
+  ): Promise<Order> {
+    const driverRef = await addDoc(collection(db, "orders"), {
+      id: generate_id(),
+      name: order.name,
+      companyid: companyID,
+      status: "INITIATED",
+      comment: order.comment || "",
+      start_date: serverTimestamp(),
+    });
+    const createdOrder = await getDoc(driverRef);
+    const createdOrderData = createdOrder.data();
+    console.log("Created order:", createdOrderData);
+
+    const batch = order.trucks.map((truck: string) => {
+      const orderTruckData = {
+        id: generate_id(),
+        orderid: createdOrderData!.id,
+        truckid: truck,
+        status: "IDLE",
+        start_date: serverTimestamp(),
+        end_date: null,
+      };
+      const orderTruckRef = doc(db, "order_trucks", orderTruckData.id);
+      console.log("Created order_truck:", truck);
+      return setDoc(orderTruckRef, orderTruckData);
+    });
+
+    await Promise.all(batch);
+
+    // 4. Возвращаем заказ
+    return {
+      ID: createdOrderData!.id,
+      name: createdOrderData!.name,
+      comment: createdOrderData!.comment,
+      status: createdOrderData!.status,
+    };
   }
 }
