@@ -83,8 +83,8 @@ export const OrdersDashboard = () => {
             <thead>
               <tr className="bg-gray-100">
                 <th className="border p-2">Название</th>
-                <th className="border p-2">Комментарий</th>
                 <th className="border p-2">Статус</th>
+                <th className="border p-2">Комментарий</th>
                 <th className="border p-2">Действия</th>
               </tr>
             </thead>
@@ -92,7 +92,11 @@ export const OrdersDashboard = () => {
               {orders.map((order) => (
                 <tr key={order.ID} className="border">
                   <td className="border p-2">{order.name}</td>
-                  <td className="border p-2">{order.status}</td>
+                  <td className="border p-2">
+                    <span className={`status ${order.status}`}>
+                      {order.status}
+                    </span>
+                  </td>
                   <td className="border p-2">{order.comment}</td>
                   <td className="border p-2 relative">
                     <DropdownMenu>
@@ -146,8 +150,8 @@ export const OrdersDashboard = () => {
             <thead>
               <tr className="bg-gray-100">
                 <th className="border p-2">Название</th>
-                <th className="border p-2">Комментарий</th>
                 <th className="border p-2">Статус</th>
+                <th className="border p-2">Комментарий</th>
                 <th className="border p-2">Действия</th>
               </tr>
             </thead>
@@ -155,7 +159,11 @@ export const OrdersDashboard = () => {
               {carrierOrders.map((order) => (
                 <tr key={order.ID} className="border">
                   <td className="border p-2">{order.name}</td>
-                  <td className="border p-2">{order.status}</td>
+                  <td className="border p-2">
+                    <span className={`status ${order.status}`}>
+                      {order.status}
+                    </span>
+                  </td>
                   <td className="border p-2">{order.comment}</td>
                   <td className="border p-2 relative">
                     <DropdownMenu>
