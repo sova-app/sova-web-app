@@ -1,4 +1,4 @@
-import { Ticket as TicketIcon, Truck as TruckIcon } from "lucide-react";
+import { Truck as TruckIcon, MapIcon, File as FileIcon } from "lucide-react";
 import Link from "next/link";
 
 export const SideBar = () => {
@@ -9,21 +9,21 @@ export const SideBar = () => {
           className="flex items-center gap-2 text-sm font-medium hover:underline underline-offset-4"
           href="/dashboard"
         >
-          <TruckIcon className="h-4 w-4" />
+          <MapIcon className="h-4 w-4" />
           Active Trucks
         </Link>
         <Link
           className="flex items-center gap-2 text-sm font-medium hover:underline underline-offset-4"
           href="/trucks"
         >
-          <TicketIcon className="h-4 w-4" />
+          <TruckIcon className="h-4 w-4" />
           Manage Trucks
         </Link>
         <Link
           className="flex items-center gap-2 text-sm font-medium hover:underline underline-offset-4"
           href="/orders"
         >
-          <TicketIcon className="h-4 w-4" />
+          <FileIcon className="h-4 w-4" />
           Manage Orders
         </Link>
       </nav>
