@@ -18,6 +18,8 @@ import { Loader } from "@/components/molecules/loader";
 import OrderForm from "../order-form";
 
 export const OrdersDashboard = () => {
+  const [carrierOrders, setCarrierOrders] = useState<Order[]>([]);
+
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setModalOpen] = useState(false);
@@ -43,9 +45,24 @@ export const OrdersDashboard = () => {
     }
   }, [service, companyID]);
 
+  const fetchCarrierOrders = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const data = await service.getCarrierOrdersByCompany(companyID);
+      setCarrierOrders(data);
+    } catch (err) {
+      if (err instanceof Error) {
+        toast.error(err.message || "An error occurred while fetching orders.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  }, [service, companyID]);
+
   useEffect(() => {
     fetchOrders();
-  }, [service, fetchOrders]);
+    fetchCarrierOrders();
+  }, [service, fetchOrders, fetchCarrierOrders]);
 
   //   const goToTruckLocation = (truckName: string) => {
   //     window.open(`/truck-location/${truckName}`, "_blank");
@@ -115,30 +132,31 @@ export const OrdersDashboard = () => {
           <Plus className="mr-2" /> Создать заказ
         </button>
       </div>
-      {/* <div className="bg-white p-4 rounded-xl shadow-md mt-4">
+
+      <div className="bg-white p-4 rounded-xl shadow-md">
         <h2 className="text-xl font-bold mb-4 flex items-center">
-          <TruckIcon className="mr-2" /> Список заявок
+          <File className="mr-2" /> Список экспедиторских заказов
         </h2>
         {isLoading ? (
           <Loader />
-        ) : trucks.length === 0 ? (
+        ) : carrierOrders.length === 0 ? (
           <div className="text-center text-gray-500">No records</div>
         ) : (
           <table className="w-full border-collapse border border-gray-300">
             <thead>
               <tr className="bg-gray-100">
                 <th className="border p-2">Название</th>
-                <th className="border p-2">Текущий водитель</th>
+                <th className="border p-2">Комментарий</th>
                 <th className="border p-2">Статус</th>
                 <th className="border p-2">Действия</th>
               </tr>
             </thead>
             <tbody>
-              {trucks.map((truck) => (
-                <tr key={truck.ID} className="border">
-                  <td className="border p-2">{truck.name}</td>
-                  <td className="border p-2">{truck.driver?.name}</td>
-                  <td className="border p-2">{truck.status}</td>
+              {carrierOrders.map((order) => (
+                <tr key={order.ID} className="border">
+                  <td className="border p-2">{order.name}</td>
+                  <td className="border p-2">{order.status}</td>
+                  <td className="border p-2">{order.comment}</td>
                   <td className="border p-2 relative">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -156,10 +174,10 @@ export const OrdersDashboard = () => {
                           sideOffset={5}
                         >
                           <DropdownMenuItem
-                            onClick={() => goToTruckLocation(truck.name)}
+                            // onClick={() => goToTruckLocation(truck.name)}
                             className="DropdownMenuItem"
                           >
-                            Перейти к машине
+                            Перейти к карте
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenuPortal>
@@ -170,7 +188,7 @@ export const OrdersDashboard = () => {
             </tbody>
           </table>
         )}
-      </div> */}
+      </div>
 
       {isModalOpen && (
         <div

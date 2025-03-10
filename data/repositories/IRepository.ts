@@ -13,6 +13,7 @@ export interface IRepository {
   getDrivers(companyID: string): Promise<Driver[]>;
   addDriver(companyID: string, driver: Driver): Promise<Driver>;
   getOrdersByCompany(companyID: string): Promise<Order[]>;
+  getCarrierOrdersByCompany(companyID: string): Promise<Order[]>;
   addOrderToCompany(companyID: string, order: CreateOrderDto): Promise<Order>;
 }
 

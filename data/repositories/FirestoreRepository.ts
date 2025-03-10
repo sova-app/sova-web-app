@@ -287,6 +287,50 @@ export class FirestoreRepository implements IRepository {
     return orders;
   }
 
+  async getCarrierOrdersByCompany(companyID: string): Promise<Order[]> {
+    const carrierOrderQuery = query(
+      collection(db, "carrier_orders"),
+      where("companyid", "==", companyID)
+    );
+    const carrierOrderSnapshot = await getDocs(carrierOrderQuery);
+
+    const orderIDs: string[] = [];
+    carrierOrderSnapshot.forEach((doc) => {
+      const data = doc.data();
+      if (data.orderid) {
+        orderIDs.push(data.orderid);
+      }
+    });
+    console.log("Orders:", orderIDs);
+
+    if (orderIDs.length === 0) {
+      return [];
+    }
+
+    const orderPromises = orderIDs.map(async (orderID) => {
+      const q = query(collection(db, "orders"), where("id", "==", orderID));
+      const querySnapshot = await getDocs(q);
+
+      if (!querySnapshot.empty) {
+        const docSnap = querySnapshot.docs[0];
+        const data = docSnap.data();
+        return {
+          ID: data.id,
+          name: data.name,
+          comment: data.comment,
+          status: data.status,
+        } as Order;
+      }
+
+      return null;
+    });
+
+    const orders = (await Promise.all(orderPromises)).filter(
+      (order) => order !== null
+    ) as Order[];
+    return orders;
+  }
+
   async addOrderToCompany(
     companyID: string,
     order: CreateOrderDto

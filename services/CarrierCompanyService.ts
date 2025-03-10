@@ -42,6 +42,10 @@ export class CarrierCompanyService {
   getOrdersByCompany = async (companyID: string): Promise<Order[]> => {
     return await this.repository.getOrdersByCompany(companyID);
   };
+
+  getCarrierOrdersByCompany = async (companyID: string): Promise<Order[]> => {
+    return await this.repository.getCarrierOrdersByCompany(companyID);
+  };
   addOrderToCompany = async (
     companyID: string,
     order: CreateOrderDto
