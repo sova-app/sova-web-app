@@ -87,7 +87,7 @@ export function OrdersTable() {
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={7} className="h-24 text-center">
+                <TableCell colSpan={4} className="h-24 text-center">
                   <div className="flex justify-center items-center">
                     <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
                   </div>
@@ -95,7 +95,7 @@ export function OrdersTable() {
               </TableRow>
             ) : orders.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="h-24 text-center">
+                <TableCell colSpan={4} className="h-24 text-center">
                   No orders found.
                 </TableCell>
               </TableRow>
@@ -109,8 +109,7 @@ export function OrdersTable() {
                       variant="outline"
                       className={getStatusColor(order.status)}
                     >
-                      {order.status.charAt(0).toUpperCase() +
-                        order.status.slice(1)}
+                      {order.status}
                     </Badge>
                   </TableCell>
                   <TableCell>{order?.comment}</TableCell>
