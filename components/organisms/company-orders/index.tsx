@@ -12,38 +12,46 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 
 import { Button } from "@/components/ui/button";
 
-// Order data interface
-
-
-
 import { MoreHorizontal, Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useCarrierService } from "@/contexts/TrucksContext";
 import { Order, OrderStatus } from "@/data/repositories/IRepository";
+import { toast } from "react-toastify";
 
 export function OrdersTable() {
   const companyID = "some-id-1";
   const service = useCarrierService();
 
-  const [orders, setOrders] = useState<Order[]>([])
+  const [orders, setOrders] = useState<Order[]>([]);
 
-  async function loadData() {
-    const res = await service.getOrdersByCompany(companyID);
+  const loadCompanyOrders = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await service.getOrdersByCompany(companyID);
+      setOrders(res);
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(
+          error.message || "An error occurred while fetching orders."
+        );
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [companyID, service]);
 
-    setOrders(res);
-  }
 
-  useEffect(() => {
-    loadData();
-  }, []);
+    useEffect(() => {
+      loadCompanyOrders();
+    }, [loadCompanyOrders]);
 
   const [loading, setLoading] = useState(false);
   const getStatusColor = (status: OrderStatus) => {
@@ -65,7 +73,7 @@ export function OrdersTable() {
 
   return (
     <>
-      <div className="rounded-md border">
+      <div className="rounded-md border flex-1 p-4 md:p-6 ">
         <Table>
           <TableHeader>
             <TableRow>
@@ -116,9 +124,10 @@ export function OrdersTable() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem>View details</DropdownMenuItem>
-                        <DropdownMenuItem>Update status</DropdownMenuItem>
+                        <DropdownMenuLabel>Действия</DropdownMenuLabel>
+                        <DropdownMenuItem>Редактировить</DropdownMenuItem>
+                        <DropdownMenuItem>Перейти к карте</DropdownMenuItem>
+                        <DropdownMenuItem  >Удалить</DropdownMenuItem>
                         {/* {hasRole("admin") && (
                           <>
                             <DropdownMenuSeparator />
