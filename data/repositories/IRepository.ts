@@ -48,5 +48,7 @@ export type Order = {
   ID: string;
   name: string;
   comment?: string;
-  status: string;
+  status: OrderStatus;
 };
+
+export type OrderStatus = 'INITIATED' | 'CANCELLED' | 'DONE' | 'ACTIVE' | 'INITIATED'
