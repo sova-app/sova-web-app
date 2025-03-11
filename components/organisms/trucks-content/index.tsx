@@ -1,9 +1,9 @@
 import { Loader } from "@/components/molecules/loader";
 import type { Truck } from "@/data/repositories/IRepository";
-import classNames from "classnames";
 import { useState } from "react";
 import { TruckLocationMap } from "../truck-location-map";
 import { TrucksTable } from "../trucks-table";
+import classNames from "classnames";
 import styles from "./index.module.scss";
 // import { Exception } from "sass";
 
@@ -25,7 +25,7 @@ export const TruckContent = () => {
         {isLoading ? (
           <Loader size={64} />
         ) : (
-          <TruckLocationMap truckID={selectedTruck?.name} />
+          <TruckLocationMap truckName={selectedTruck?.name} />
         )}
 
         <div

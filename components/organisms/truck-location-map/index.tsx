@@ -7,18 +7,18 @@ import { toast } from "react-toastify";
 import type { TruckMapLocationProps } from "./types";
 
 export const TruckLocationMap = (props: TruckMapLocationProps) => {
-  const { truckID } = props;
+  const { truckName } = props;
   const [locations, setLocations] = useState<TruckLocation[]>([]);
   const service = useTruckLocationService();
   const mapRef = useRef<ymaps.Map | null>(null);
 
   useEffect(() => {
-    if (!truckID) {
+    if (!truckName) {
       return;
     }
     const fetchLocations = async () => {
       try {
-        const data = await service.getTruckLocations(truckID);
+        const data = await service.getTruckLocations(truckName);
         setLocations(data);
         if (mapRef.current && data.length > 0) {
           const lastLocation = data[data.length - 1];
@@ -35,7 +35,7 @@ export const TruckLocationMap = (props: TruckMapLocationProps) => {
     };
 
     fetchLocations();
-  }, [truckID, service]);
+  }, [truckName, service]);
 
   const pathCoordinates = locations.map((location) => [
     location.lat,

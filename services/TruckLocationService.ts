@@ -5,8 +5,8 @@ import { Truck, TruckLocation } from "../data/repositories/IRepository";
 export class TruckLocationService {
   private repository = DataSourceFactory.getRepository();
 
-  getTruckLocations = async (userID: string): Promise<TruckLocation[]> => {
-    return await this.repository.getTruckLocations(userID);
+  getTruckLocations = async (truckName: string): Promise<TruckLocation[]> => {
+    return await this.repository.getTruckLocations(truckName);
   };
 
   getTrucks = async (): Promise<Truck[]> => {

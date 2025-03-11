@@ -7,11 +7,11 @@ import { TruckLocationMap } from "@/components/organisms/truck-location-map";
 import { TruckLocationProvider } from "@/contexts/TruckLocationContext";
 
 export default function TruckLocationPage() {
-  const [truckID, ] = React.useState<string>("");
+  const [truckID] = React.useState<string>("");
   return (
     <TruckLocationProvider>
       {/* <TruckSelector onTruckSelected={setTruckID} /> */}
-      <TruckLocationMap truckID={truckID} />
+      <TruckLocationMap truckName={truckID} />
     </TruckLocationProvider>
   );
 }
