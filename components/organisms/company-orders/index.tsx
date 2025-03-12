@@ -12,7 +12,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -20,17 +19,21 @@ import { Badge } from "@/components/ui/badge";
 
 import { Button } from "@/components/ui/button";
 
-import { MoreHorizontal, Loader2 } from "lucide-react";
+import { PlusIcon, Loader2, MoreHorizontal } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useCarrierService } from "@/contexts/TrucksContext";
 import { Order, OrderStatus } from "@/data/repositories/IRepository";
 import { toast } from "react-toastify";
+import { OrderFormModal } from "@/components/organisms/order-modal-form";
+
 
 export function OrdersTable() {
   const companyID = "some-id-1";
   const service = useCarrierService();
 
   const [orders, setOrders] = useState<Order[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false)
+
 
   const loadCompanyOrders = useCallback(async () => {
     try {
@@ -48,16 +51,13 @@ export function OrdersTable() {
     }
   }, [companyID, service]);
 
-
-    useEffect(() => {
-      loadCompanyOrders();
-    }, [loadCompanyOrders]);
+  useEffect(() => {
+    loadCompanyOrders();
+  }, [loadCompanyOrders]);
 
   const [loading, setLoading] = useState(false);
   const getStatusColor = (status: OrderStatus) => {
     switch (status) {
-      case "ACTIVE":
-        return "bg-yellow-100 text-yellow-800 hover:bg-yellow-100/80";
       case "ACTIVE":
         return "bg-blue-100 text-blue-800 hover:bg-blue-100/80";
       case "DONE":
@@ -74,8 +74,20 @@ export function OrdersTable() {
   return (
     <>
       <div className="rounded-md border flex-1 p-4 md:p-6 ">
+        <OrderFormModal open={isModalOpen}
+        onOpenChange={setIsModalOpen}
+        onSuccess={() => {
+          // Refresh orders data after successful creation
+          setIsModalOpen(false)
+        }} />
         <Table>
           <TableHeader>
+            <div className="my-2" >
+            <Button  onClick={() => setIsModalOpen(true)} size="sm" >
+              <PlusIcon className="h-4 w-4" />
+              <span>Создать заказ</span>
+            </Button>
+            </div>
             <TableRow>
               <TableHead>Название</TableHead>
               <TableHead>Статус</TableHead>
@@ -126,7 +138,7 @@ export function OrdersTable() {
                         <DropdownMenuLabel>Действия</DropdownMenuLabel>
                         <DropdownMenuItem>Редактировить</DropdownMenuItem>
                         <DropdownMenuItem>Перейти к карте</DropdownMenuItem>
-                        <DropdownMenuItem  >Удалить</DropdownMenuItem>
+                        <DropdownMenuItem>Удалить</DropdownMenuItem>
                         {/* {hasRole("admin") && (
                           <>
                             <DropdownMenuSeparator />

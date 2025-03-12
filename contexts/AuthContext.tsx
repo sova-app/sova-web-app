@@ -5,10 +5,11 @@ import { firebaseAuth } from "@/auth";
 export const AuthContext = createContext<{
   user: UserInfo | null;
   loading: boolean;
+  role: string | null;
 }>({
   user: null,
   loading: true,
-
+  role: null,
 });
 
 export function useAuth() {
@@ -18,10 +19,17 @@ export function useAuth() {
 export function AuthProvider(props: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserInfo | null>(null);
   const [loading, setLoading] = useState(true);
+  const [role, setRole] = useState<string | null>(null);
+
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(firebaseAuth, (user) => {
+    const unsubscribe = onAuthStateChanged(firebaseAuth, async (user) => {
       setUser(user);
+      const idTokenResult = await user?.getIdTokenResult();
+      const authRole = idTokenResult?.claims?.role as string | undefined
+      if (authRole) {
+        setRole(authRole);
+      }
 
       setLoading(false);
     });
@@ -30,7 +38,7 @@ export function AuthProvider(props: { children: React.ReactNode }) {
 
   return (
     <>
-      <AuthContext.Provider value={{ user, loading }}>
+      <AuthContext.Provider value={{ user, loading, role }}>
         {props.children}
       </AuthContext.Provider>
     </>

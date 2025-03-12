@@ -29,11 +29,9 @@ export function AuthGuard({
     const unsubscribe = onAuthStateChanged(firebaseAuth, async (user) => {
       try {
         if (user) {
-          // Get the user's ID token result to check custom claims (roles)
           const idTokenResult = await user.getIdTokenResult();
-          const roles = (idTokenResult.claims.roles as string[]) || [];
+          const roles = [idTokenResult.claims?.role as string];
 
-          // If roles are specified and user doesn't have required role, redirect
           if (
             allowedRoles.length > 0 &&
             !allowedRoles.some((role) => roles.includes(role))

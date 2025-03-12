@@ -1,3 +1,4 @@
+import { useAuth } from "@/contexts/AuthContext";
 import { Truck as TruckIcon, MapIcon, File as FileIcon } from "lucide-react";
 import Link from "next/link";
 import React from "react";
@@ -5,7 +6,7 @@ import React from "react";
 type SidebarLink = {
   href: string;
   label: string;
-  hidden?: () => boolean;
+  hidden?: (...args: unknown[]) => boolean;
   icon: React.ElementType;
 };
 
@@ -13,14 +14,22 @@ const sidebarLinks: SidebarLink[] = [
   { href: "/dashboard", icon: MapIcon, label: "Active Trucks" },
   { href: "/trucks", icon: TruckIcon, label: "Manage Trucks" },
   { href: "/orders", icon: FileIcon, label: "Manage Orders" },
-  { href: '/company-orders', icon: FileIcon, label: 'Company Orders' },
+  {
+    href: "/company-orders",
+    icon: FileIcon,
+    label: "Company Orders",
+    hidden: (role) => role !== "expeditor",
+  },
 ];
 
 function SidebarItems() {
+  const { role } = useAuth();
+
   return sidebarLinks.map((link) => {
-    if (link.hidden && link.hidden()) {
+    if (link.hidden && link.hidden(role)) {
       return null;
     }
+
     return (
       <>
         <Link

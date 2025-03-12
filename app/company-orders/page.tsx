@@ -8,7 +8,7 @@ import "react-toastify/dist/ReactToastify.css";
 function Page() {
   return (
     <>
-      <AuthGuard requireAuth>
+      <AuthGuard requireAuth allowedRoles={['expeditor']} >
         <CompanyOrdersPage />
       </AuthGuard>
     </>
