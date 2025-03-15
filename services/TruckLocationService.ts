@@ -12,4 +12,8 @@ export class TruckLocationService {
   getTrucks = async (): Promise<Truck[]> => {
     return await this.repository.getTrucks();
   };
+
+  getTruckById = async (truckID: string): Promise<Truck> => {
+    return await this.repository.getTruckById(truckID);
+  };
 }

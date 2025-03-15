@@ -17,6 +17,8 @@ import {
   Driver,
   IRepository,
   Order,
+  OrderTruck,
+  OrderTruckStatus,
   Truck,
   TruckFull,
   TruckLocation,
@@ -30,6 +32,57 @@ const generate_id = () => {
 };
 
 export class FirestoreRepository implements IRepository {
+  getOrderById(orderID: string): Promise<Order> {
+    throw new Error("Method not implemented.");
+  }
+  async getOrderTrucks(orderID: string): Promise<OrderTruck[]> {
+    try {
+      const orderTrucksRef = collection(db, "order_trucks");
+      const q = query(orderTrucksRef, where("orderid", "==", orderID));
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        return [];
+      }
+
+      const orderTrucks: OrderTruck[] = [];
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        orderTrucks.push({
+          truckID: data.truckid,
+          orderID: data.orderid,
+          status: data.status as OrderTruckStatus,
+          start_date: data.start_date.toDate(),
+        });
+      });
+
+      return orderTrucks;
+    } catch (error) {
+      console.error("Error fetching order trucks:", error);
+      throw new ApiError(500, "Failed to fetch order trucks", "500", {});
+    }
+  }
+  async getTruckById(truckID: string): Promise<Truck> {
+    try {
+      const trucksRef = collection(db, "trucks");
+      const q = query(trucksRef, where("id", "==", truckID));
+      const querySnapshot = await getDocs(q);
+
+      if (!querySnapshot.empty) {
+        const truckDoc = querySnapshot.docs[0];
+        const truckData = truckDoc.data();
+        return {
+          ID: truckData.id,
+          name: truckData.truck,
+        };
+      } else {
+        throw new ApiError(404, "Truck not found", "404", {});
+      }
+    } catch (error) {
+      console.error("Error fetching truck:", error);
+      throw new ApiError(500, "Failed to fetch truck", "500", {});
+    }
+  }
   async getTruckLocations(truckName: string): Promise<TruckLocation[]> {
     const q = query(
       collection(db, "geos"),
@@ -48,14 +101,6 @@ export class FirestoreRepository implements IRepository {
         timestamp: data.timestamp.toDate(),
       });
     });
-    if (!locations || locations.length == 0) {
-      throw new ApiError(
-        500,
-        "There are no records for this specific truck",
-        "200",
-        {}
-      );
-    }
     return locations;
   }
 
@@ -67,7 +112,7 @@ export class FirestoreRepository implements IRepository {
       const data = doc.data();
       trucks.push({
         name: data.truck,
-        ID: data.truckid,
+        ID: data.id,
       });
     });
     return trucks;
@@ -301,7 +346,6 @@ export class FirestoreRepository implements IRepository {
         orderIDs.push(data.orderid);
       }
     });
-    console.log("Orders:", orderIDs);
 
     if (orderIDs.length === 0) {
       return [];

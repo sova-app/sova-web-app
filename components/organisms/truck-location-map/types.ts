@@ -1,3 +1,3 @@
 export interface TruckMapLocationProps {
-  truckName: string | undefined;
+  truckIds: string[] | undefined;
 }

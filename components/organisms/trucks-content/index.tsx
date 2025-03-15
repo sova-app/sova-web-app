@@ -25,7 +25,9 @@ export const TruckContent = () => {
         {isLoading ? (
           <Loader size={64} />
         ) : (
-          <TruckLocationMap truckName={selectedTruck?.name} />
+          <TruckLocationMap
+            truckIds={selectedTruck?.ID ? [selectedTruck.ID] : []}
+          />
         )}
 
         <div
