@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useCarrierService } from "@/contexts/TrucksContext";
+import "react-toastify/dist/ReactToastify.css";
 import { toast } from "react-toastify";
 import { Order } from "@/data/repositories/IRepository";
 
@@ -13,11 +14,12 @@ import {
 import { HamburgerMenuIcon } from "@radix-ui/react-icons";
 import { File, Plus } from "lucide-react";
 import "./index.css";
-// import TruckForm from "../new-truck-form";
 import { Loader } from "@/components/molecules/loader";
 import OrderForm from "../order-form";
+import { useRouter } from "next/navigation";
 
 export const OrdersDashboard = () => {
+  const router = useRouter();
   const [carrierOrders, setCarrierOrders] = useState<Order[]>([]);
 
   const [orders, setOrders] = useState<Order[]>([]);
@@ -60,13 +62,15 @@ export const OrdersDashboard = () => {
   }, [service, companyID]);
 
   useEffect(() => {
+    toast.error(`No locations available for.`);
     fetchOrders();
     fetchCarrierOrders();
   }, [service, fetchOrders, fetchCarrierOrders]);
 
-  //   const goToTruckLocation = (truckName: string) => {
-  //     window.open(`/truck-location/${truckName}`, "_blank");
-  //   };
+  const goToOrderTruckLocations = (orderID: string) => {
+    console.log(orderID);
+    router.push(`/orders/${orderID}/location`);
+  };
 
   return (
     <main className="flex-1 p-4 md:p-6">
@@ -115,7 +119,7 @@ export const OrdersDashboard = () => {
                           sideOffset={5}
                         >
                           <DropdownMenuItem
-                            // onClick={() => goToTruckLocation(truck.name)}
+                            onClick={() => goToOrderTruckLocations(order.ID)}
                             className="DropdownMenuItem"
                           >
                             Перейти к карте

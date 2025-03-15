@@ -45,8 +45,8 @@ export const TrucksDashboard = () => {
     fetchTrucks();
   }, [service, fetchTrucks]);
 
-  const goToTruckLocation = (truckName: string) => {
-    window.open(`/truck-location/${truckName}`, "_blank");
+  const goToTruckLocation = (truckID: string) => {
+    window.open(`/truck-location/${truckID}`, "_blank");
   };
 
   return (
@@ -92,7 +92,7 @@ export const TrucksDashboard = () => {
                           sideOffset={5}
                         >
                           <DropdownMenuItem
-                            onClick={() => goToTruckLocation(truck.name)}
+                            onClick={() => goToTruckLocation(truck.ID)}
                             className="DropdownMenuItem"
                           >
                             Перейти к машине
