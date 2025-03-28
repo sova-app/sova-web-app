@@ -12,6 +12,7 @@ export interface IRepository {
   updateTruckFromCompany(companyID: string): Promise<Truck[]>;
 
   getDrivers(companyID: string): Promise<Driver[]>;
+  getDriversByCompany(companyID: string): Promise<Driver[]>;
   addDriver(companyID: string, driver: Driver): Promise<Driver>;
   getOrdersByCompany(companyID: string): Promise<Order[]>;
   getOrderById(orderID: string): Promise<Order>;

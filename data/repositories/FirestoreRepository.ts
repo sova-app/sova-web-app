@@ -187,7 +187,6 @@ export class FirestoreRepository implements IRepository {
       (doc) => doc.data().driverid
     );
     console.log("Fetching driver IDs", driverIDs);
-    // I think i want a map [truckID: driverID]
     const truckDrivers = driverTrucksSnapshot.docs.reduce((acc, doc) => {
       const data = doc.data();
       acc[data.truckid] = data.driverid;
@@ -195,7 +194,6 @@ export class FirestoreRepository implements IRepository {
     }, {} as Record<string, string>);
     console.log("Fetching truck drivers", truckDrivers);
 
-    // Получаем все записи из drivers, фильтруя по driverid
     const drivers = await this.getDriversByIds(driverIDs as string[]);
     console.log("Fetching drivers by IDs", drivers);
     const companies = await this.getCompaniesByIds([companyID]);
@@ -262,8 +260,8 @@ export class FirestoreRepository implements IRepository {
   }
 
   async getDrivers(companyID: string): Promise<Driver[]> {
+    console.log("getDrivers");
     // TODO SA-100: Implement filtering by companyID
-    console.log(companyID);
     const q = query(collection(db, "drivers"));
     const querySnapshot = await getDocs(q);
     const drivers: Driver[] = [];
@@ -274,6 +272,39 @@ export class FirestoreRepository implements IRepository {
         ID: data.id,
       });
     });
+    return drivers;
+  }
+
+  async getDriversByCompany(companyID: string): Promise<Driver[]> {
+    const companyTrucksQuery = query(
+      collection(db, "company_drivers"),
+      where("companyid", "==", companyID)
+    );
+    const companyTrucksSnapshot = await getDocs(companyTrucksQuery);
+
+    const driverIDs = companyTrucksSnapshot.docs.map(
+      (doc) => doc.data().driverid
+    );
+
+    if (driverIDs.length === 0) {
+      return [];
+    }
+
+    const driversQuery = query(
+      collection(db, "drivers"),
+      where("id", "in", driverIDs)
+    );
+    const querySnapshot = await getDocs(driversQuery);
+
+    const drivers: Driver[] = [];
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      drivers.push({
+        name: data.name,
+        ID: data.id,
+      });
+    });
+    console.log("Fetching company Drivers", drivers);
     return drivers;
   }
 

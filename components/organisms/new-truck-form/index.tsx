@@ -27,7 +27,7 @@ const TruckForm = (props: TruckFormProps) => {
     const fetchDrivers = async () => {
       try {
         // TODO SA-100, SA-101: Replace "some-id-1" with the actual company ID
-        const data = await service.getDrivers("some-id-1");
+        const data = await service.getDriversByCompany("some-id-1");
         setDrivers(data);
       } catch (err) {
         if (err instanceof Error) {

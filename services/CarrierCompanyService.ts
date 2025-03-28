@@ -36,6 +36,10 @@ export class CarrierCompanyService {
     return await this.repository.getDrivers(companyID);
   };
 
+  getDriversByCompany = async (companyID: string): Promise<Driver[]> => {
+    return await this.repository.getDriversByCompany(companyID);
+  };
+
   addDriver = async (companyID: string, driver: Driver): Promise<Driver> => {
     return await this.repository.addDriver(companyID, driver);
   };
