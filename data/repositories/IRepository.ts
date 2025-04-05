@@ -14,6 +14,7 @@ export interface IRepository {
   getDrivers(companyID: string): Promise<Driver[]>;
   getDriversByCompany(companyID: string): Promise<Driver[]>;
   addDriver(companyID: string, driver: Driver): Promise<Driver>;
+
   getOrdersByCompany(companyID: string): Promise<Order[]>;
   getOrderById(orderID: string): Promise<Order>;
   getOrderTrucks(orderID: string): Promise<OrderTruck[]>;
@@ -43,8 +44,8 @@ export type Company = {
 };
 
 export type TruckFull = Truck & {
-  driver?: Driver;
-  company?: Company;
+  driver?: Driver | null;
+  company?: Company | null;
   status?: string;
 };
 
