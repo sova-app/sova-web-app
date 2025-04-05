@@ -19,12 +19,11 @@ import { Badge } from "@/components/ui/badge";
 
 import { Button } from "@/components/ui/button";
 
-import { PlusIcon, Loader2, MoreHorizontal } from "lucide-react";
+import { Loader2, MoreHorizontal } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useCarrierService } from "@/contexts/TrucksContext";
 import { Order, OrderStatus } from "@/data/repositories/IRepository";
 import { toast } from "react-toastify";
-import { OrderFormModal } from "@/components/organisms/order-modal-form";
 import { useRouter } from "next/navigation";
 
 export function CarrierOrdersTable() {
@@ -34,7 +33,6 @@ export function CarrierOrdersTable() {
   const service = useCarrierService();
 
   const [orders, setOrders] = useState<Order[]>([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const loadCarrierOrders = useCallback(async () => {
     try {
       setLoading(true);
@@ -82,23 +80,8 @@ export function CarrierOrdersTable() {
       <h2 className="text-xl font-bold mb-4 flex items-center">
         Список экспедиторских заказов
       </h2>
-      <OrderFormModal
-        open={isModalOpen}
-        onOpenChange={setIsModalOpen}
-        onSuccess={() => {
-          // Refresh orders data after successful creation
-          loadCarrierOrders();
-          setIsModalOpen(false);
-        }}
-      />
       <Table>
         <TableHeader>
-          <div className="my-2">
-            <Button onClick={() => setIsModalOpen(true)} size="sm">
-              <PlusIcon className="h-4 w-4" />
-              <span>Создать заказ</span>
-            </Button>
-          </div>
           <TableRow>
             <TableHead>Название</TableHead>
             <TableHead>Статус</TableHead>
