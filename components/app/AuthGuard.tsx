@@ -4,6 +4,7 @@ import { firebaseAuth } from "@/auth";
 import type { User } from "firebase/auth";
 import { onAuthStateChanged } from "firebase/auth";
 import { Loader2 } from "lucide-react";
+import { Roles } from "@/data/repositories/IRepository";
 import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
@@ -11,7 +12,7 @@ interface AuthGuardProps {
   children: React.ReactNode;
   requireAuth?: boolean;
   redirectTo?: string;
-  allowedRoles?: string[];
+  allowedRoles?: Roles[];
 }
 
 export function AuthGuard({

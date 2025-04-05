@@ -71,3 +71,10 @@ export type OrderStatus =
   | "INITIATED";
 
 export type OrderTruckStatus = "ACTIVE" | "DONE" | "INITIATED" | "CANCELLED";
+
+export enum Roles {
+  admin = "admin",
+  carrier = "carrier",
+  expeditor = "expeditor",
+  driver = "driver",
+}
