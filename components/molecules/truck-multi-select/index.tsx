@@ -48,7 +48,6 @@ export function TruckMultiSelect({
               >
                 <Checkbox
                   checked={selectedTrucks.includes(truck.ID)}
-                  onCheckedChange={() => toggleTruck(truck.ID)}
                   className="mr-2"
                 />
                 {truck.name}
