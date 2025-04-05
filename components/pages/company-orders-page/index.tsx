@@ -1,8 +1,8 @@
 import React from "react";
 import { Header } from "@/components/organisms/header";
 import { SideBar } from "@/components/organisms/side-bar";
-import { OrdersTable } from "@/components/organisms/company-orders";
 import { CarrierProvider } from "@/contexts/TrucksContext";
+import { OrdersTable } from "@/components/organisms/orders-table";
 
 export default function OrdersPage() {
   return (
