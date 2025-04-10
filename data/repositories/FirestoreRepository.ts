@@ -17,7 +17,7 @@ import {
   Driver,
   IRepository,
   Order,
-  OrderTruck,
+  OrderTruckExtended,
   OrderTruckStatus,
   Truck,
   TruckFull,
@@ -35,35 +35,27 @@ export class FirestoreRepository implements IRepository {
   getDrivers(companyID: string): Promise<Driver[]> {
     throw new Error("Method not implemented.");
   }
-  getOrderById(orderID: string): Promise<Order> {
-    throw new Error("Method not implemented.");
-  }
-
-  async getOrderTrucks(orderID: string): Promise<OrderTruck[]> {
+  async getOrderById(orderID: string): Promise<Order> {
     try {
-      const orderTrucksRef = collection(db, "order_trucks");
-      const q = query(orderTrucksRef, where("orderid", "==", orderID));
+      const orderRed = collection(db, "orders");
+      const q = query(orderRed, where("id", "==", orderID));
       const querySnapshot = await getDocs(q);
 
-      if (querySnapshot.empty) {
-        return [];
+      if (!querySnapshot.empty) {
+        const orderDoc = querySnapshot.docs[0];
+        const orderData = orderDoc.data();
+        return {
+          ID: orderData.id,
+          name: orderData.name,
+          status: orderData.status,
+          comment: orderData.comment,
+        };
+      } else {
+        throw new ApiError(404, "Order not found", "404", {});
       }
-
-      const orderTrucks: OrderTruck[] = [];
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        orderTrucks.push({
-          truckID: data.truckid,
-          orderID: data.orderid,
-          status: data.status as OrderTruckStatus,
-          start_date: data.start_date.toDate(),
-        });
-      });
-
-      return orderTrucks;
     } catch (error) {
-      console.error("Error fetching order trucks:", error);
-      throw new ApiError(500, "Failed to fetch order trucks", "500", {});
+      console.error("Error fetching order:", error);
+      throw new ApiError(500, "Failed to fetch order", "500", {});
     }
   }
   async getTruckById(truckID: string): Promise<Truck> {
@@ -87,6 +79,37 @@ export class FirestoreRepository implements IRepository {
       throw new ApiError(500, "Failed to fetch truck", "500", {});
     }
   }
+
+  async getOrderTrucks(orderID: string): Promise<OrderTruckExtended[]> {
+    try {
+      const orderTrucksRef = collection(db, "order_trucks");
+      const q = query(orderTrucksRef, where("orderid", "==", orderID));
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        return [];
+      }
+
+      const orderTrucks: OrderTruckExtended[] = [];
+      for (const doc of querySnapshot.docs) {
+        const data = doc.data();
+        const truck = await this.getTruckById(data.truckid);
+        orderTrucks.push({
+          truckID: data.truckid,
+          truckName: truck.name,
+          orderID: data.orderid,
+          status: data.status as OrderTruckStatus,
+          start_date: data.end_date ? data.start_date.toDate() : null,
+          end_date: data.end_date ? data.end_date.toDate() : null,
+        });
+      }
+      return orderTrucks;
+    } catch (error) {
+      console.error("Error fetching order trucks:", error);
+      throw new ApiError(500, "Failed to fetch order trucks", "500", {});
+    }
+  }
+
   async getTruckLocations(truckName: string): Promise<TruckLocation[]> {
     const q = query(
       collection(db, "geos"),
@@ -516,6 +539,7 @@ export class FirestoreRepository implements IRepository {
       name: createdOrderData!.name,
       comment: createdOrderData!.comment,
       status: createdOrderData!.status,
+      // TODO: Change this to actual trucks
       trucks: [],
     };
   }

@@ -17,7 +17,7 @@ export interface IRepository {
 
   getOrdersByCompany(companyID: string): Promise<Order[]>;
   getOrderById(orderID: string): Promise<Order>;
-  getOrderTrucks(orderID: string): Promise<OrderTruck[]>;
+  getOrderTrucks(orderID: string): Promise<OrderTruckExtended[]>;
   getCarrierOrdersByCompany(companyID: string): Promise<Order[]>;
   addOrderToCompany(companyID: string, order: CreateOrderDto): Promise<Order>;
 }
@@ -60,7 +60,11 @@ export type OrderTruck = {
   truckID: string;
   orderID: string;
   status: OrderTruckStatus;
-  start_date: Date;
+  start_date?: Date | null;
+  end_date?: Date | null;
+};
+export type OrderTruckExtended = OrderTruck & {
+  truckName: string;
 };
 
 export type OrderStatus =
@@ -70,7 +74,7 @@ export type OrderStatus =
   | "ACTIVE"
   | "INITIATED";
 
-export type OrderTruckStatus = "ACTIVE" | "DONE" | "INITIATED" | "CANCELLED";
+export type OrderTruckStatus = "ACTIVE" | "DONE" | "IDLE";
 
 export enum Roles {
   admin = "admin",

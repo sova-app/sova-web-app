@@ -4,7 +4,7 @@ import { DataSourceFactory } from "../data/DataSourceFactory";
 import {
   Driver,
   Order,
-  OrderTruck,
+  OrderTruckExtended,
   Truck,
   TruckFull,
 } from "../data/repositories/IRepository";
@@ -52,7 +52,7 @@ export class CarrierCompanyService {
     return await this.repository.getOrderById(orderID);
   };
 
-  getOrderTrucks = async (orderID: string): Promise<OrderTruck[]> => {
+  getOrderTrucks = async (orderID: string): Promise<OrderTruckExtended[]> => {
     return await this.repository.getOrderTrucks(orderID);
   };
 

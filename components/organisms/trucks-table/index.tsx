@@ -1,21 +1,7 @@
-import { useTruckLocationService } from "@/contexts/TruckLocationContext";
-import { Truck } from "@/data/repositories/IRepository";
-import { useEffect, useState } from "react";
-import { TrucksTableProps } from "./types";
+import { TrucksFloatingListProps } from "./types";
 
-export function TrucksTable(props: TrucksTableProps) {
-  const [trucks, setTrucks] = useState<Truck[]>([]);
-  const service = useTruckLocationService();
-  const { onTruckSelect } = props;
-
-  useEffect(() => {
-    const fetchTrucks = async () => {
-      const data = await service.getTrucks();
-      setTrucks(data);
-    };
-
-    fetchTrucks();
-  }, [service]);
+export function TrucksFloatingList(props: TrucksFloatingListProps) {
+  const { onTruckSelect, trucks } = props;
 
   return (
     <div>

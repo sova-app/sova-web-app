@@ -149,7 +149,7 @@ export function OrdersTable() {
                       <DropdownMenuItem
                         onClick={() => goToOrderTruckLocations(order.ID)}
                       >
-                        Перейти к карте
+                        К списку машин
                       </DropdownMenuItem>
                       <DropdownMenuItem>Удалить</DropdownMenuItem>
                       {/* {hasRole("admin") && (
