@@ -22,12 +22,15 @@ import { Button } from "@/components/ui/button";
 import { PlusIcon, Loader2, MoreHorizontal } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useCarrierService } from "@/contexts/TrucksContext";
-import { Order, OrderStatus } from "@/data/repositories/IRepository";
+import { Order, OrderStatus, Roles } from "@/data/repositories/IRepository";
 import { toast } from "react-toastify";
 import { OrderFormModal } from "@/components/organisms/order-modal-form";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
+import { CompanyOrderFormModal } from "../company-order-modal-form";
 
 export function OrdersTable() {
+  const { role } = useAuth();
   const router = useRouter();
   // TODO SA-100, SA-101: Replace "some-id-1" with the actual company ID
   const companyID = "some-id-1";
@@ -81,14 +84,25 @@ export function OrdersTable() {
       <h2 className="text-xl font-bold mb-4 flex items-center">
         Список заказов
       </h2>
-      <OrderFormModal
-        open={isModalOpen}
-        onOpenChange={setIsModalOpen}
-        onSuccess={() => {
-          loadCompanyOrders();
-          setIsModalOpen(false);
-        }}
-      />
+      {role === Roles.carrier ? (
+        <OrderFormModal
+          open={isModalOpen}
+          onOpenChange={setIsModalOpen}
+          onSuccess={() => {
+            loadCompanyOrders();
+            setIsModalOpen(false);
+          }}
+        />
+      ) : (
+        <CompanyOrderFormModal
+          open={isModalOpen}
+          onOpenChange={setIsModalOpen}
+          onSuccess={() => {
+            loadCompanyOrders();
+            setIsModalOpen(false);
+          }}
+        />
+      )}
       <Table>
         <TableHeader>
           <div className="my-2">

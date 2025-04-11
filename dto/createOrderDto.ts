@@ -1,6 +1,6 @@
 export type CreateOrderDto = {
   name: string;
-  trucks: string[];
+  truckIDs: string[];
+  companyIDs?: string[];
   comment?: string;
 };
-

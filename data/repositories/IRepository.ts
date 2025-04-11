@@ -3,6 +3,7 @@ import { CreateTruckDto } from "@/dto/createTruckDto";
 
 export interface IRepository {
   getTruckLocations(userID: string): Promise<TruckLocation[]>;
+  getCarrierCompanies(): Promise<Company[]>;
 
   getTrucks(): Promise<Truck[]>;
   getTruckById(truckID: string): Promise<Truck>;
