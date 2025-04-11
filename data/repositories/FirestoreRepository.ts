@@ -13,6 +13,7 @@ import {
   where,
 } from "firebase/firestore";
 import {
+  CarrierOrderExtended,
   Company,
   Driver,
   IRepository,
@@ -36,6 +37,7 @@ export class FirestoreRepository implements IRepository {
     throw new Error("Method not implemented.");
   }
   async getOrderById(orderID: string): Promise<Order> {
+    console.log(`*** calling 'getOrderById' with ${orderID} ***`);
     try {
       const orderRed = collection(db, "orders");
       const q = query(orderRed, where("id", "==", orderID));
@@ -46,6 +48,7 @@ export class FirestoreRepository implements IRepository {
         const orderData = orderDoc.data();
         return {
           ID: orderData.id,
+          companyID: orderData.companyid,
           name: orderData.name,
           status: orderData.status,
           comment: orderData.comment,
@@ -58,6 +61,39 @@ export class FirestoreRepository implements IRepository {
       throw new ApiError(500, "Failed to fetch order", "500", {});
     }
   }
+
+  async getCarrierOrderById(orderID: string): Promise<CarrierOrderExtended> {
+    console.log(`*** calling 'getCarrierOrderById' with ${orderID} ***`);
+    try {
+      const orderRed = collection(db, "carrier_orders");
+      const q = query(orderRed, where("id", "==", orderID));
+      const querySnapshot = await getDocs(q);
+
+      if (!querySnapshot.empty) {
+        const orderDoc = querySnapshot.docs[0];
+        const orderData = orderDoc.data();
+        const order = await this.getOrderById(orderData.orderid);
+        return {
+          ID: orderData.id,
+          orderID: orderData.orderid,
+          companyID: orderData.companyid,
+          status: orderData.status,
+          end_date: orderData.end_date ? orderData.end_date.toDate() : null,
+          orderName: order.name,
+          orderCompanyID: order.companyID,
+          start_date: orderData.start_date
+            ? orderData.start_date.toDate()
+            : null,
+        };
+      } else {
+        throw new ApiError(404, "Carrier order not found", "404", {});
+      }
+    } catch (error) {
+      console.error("Error fetching Carrier order:", error);
+      throw new ApiError(500, "Failed to fetch Carrier order", "500", {});
+    }
+  }
+
   async getTruckById(truckID: string): Promise<Truck> {
     try {
       const trucksRef = collection(db, "trucks");
@@ -98,6 +134,44 @@ export class FirestoreRepository implements IRepository {
           truckID: data.truckid,
           truckName: truck.name,
           orderID: data.orderid,
+          companyID: data.companyid,
+          status: data.status as OrderTruckStatus,
+          start_date: data.end_date ? data.start_date.toDate() : null,
+          end_date: data.end_date ? data.end_date.toDate() : null,
+        });
+      }
+      return orderTrucks;
+    } catch (error) {
+      console.error("Error fetching order trucks:", error);
+      throw new ApiError(500, "Failed to fetch order trucks", "500", {});
+    }
+  }
+  async getCarrierOrderTrucks(
+    carrierOrderID: string
+  ): Promise<OrderTruckExtended[]> {
+    try {
+      const carrierOrder = await this.getCarrierOrderById(carrierOrderID);
+      const orderTrucksRef = collection(db, "order_trucks");
+      const q = query(
+        orderTrucksRef,
+        where("orderid", "==", carrierOrder.ID),
+        where("companyid", "==", carrierOrder.companyID)
+      );
+      const orderTrucksSnapshot = await getDocs(q);
+
+      if (orderTrucksSnapshot.empty) {
+        return [];
+      }
+
+      const orderTrucks: OrderTruckExtended[] = [];
+      for (const doc of orderTrucksSnapshot.docs) {
+        const data = doc.data();
+        const truck = await this.getTruckById(data.truckid);
+        orderTrucks.push({
+          truckID: data.truckid,
+          truckName: truck.name,
+          orderID: data.orderid,
+          companyID: carrierOrder.companyID,
           status: data.status as OrderTruckStatus,
           start_date: data.end_date ? data.start_date.toDate() : null,
           end_date: data.end_date ? data.end_date.toDate() : null,
@@ -435,6 +509,7 @@ export class FirestoreRepository implements IRepository {
         name: data.name,
         comment: data.comment,
         status: data.status,
+        companyID: data.companyid,
       });
     }
     console.log("Orders", orders);
@@ -458,47 +533,43 @@ export class FirestoreRepository implements IRepository {
     return trucks;
   }
 
-  async getCarrierOrdersByCompany(companyID: string): Promise<Order[]> {
+  async getCarrierOrdersByCompany(
+    companyID: string
+  ): Promise<CarrierOrderExtended[]> {
     const carrierOrderQuery = query(
       collection(db, "carrier_orders"),
       where("companyid", "==", companyID)
     );
     const carrierOrderSnapshot = await getDocs(carrierOrderQuery);
 
-    const orderIDs: string[] = [];
-    carrierOrderSnapshot.forEach((doc) => {
-      const data = doc.data();
-      if (data.orderid) {
-        orderIDs.push(data.orderid);
-      }
-    });
-
-    if (orderIDs.length === 0) {
-      return [];
-    }
-
-    const orderPromises = orderIDs.map(async (orderID) => {
-      const q = query(collection(db, "orders"), where("id", "==", orderID));
+    const carrierOrders: CarrierOrderExtended[] = [];
+    for (const carrierOrder of carrierOrderSnapshot.docs) {
+      const carrierOrderData = carrierOrder.data();
+      const q = query(
+        collection(db, "orders"),
+        where("id", "==", carrierOrderData.orderid)
+      );
       const querySnapshot = await getDocs(q);
-
       if (!querySnapshot.empty) {
         const docSnap = querySnapshot.docs[0];
-        const data = docSnap.data();
-        return {
-          ID: data.id,
-          name: data.name,
-          comment: data.comment,
-          status: data.status,
-        } as Order;
+        const orderData = docSnap.data();
+        carrierOrders.push({
+          ID: carrierOrderData.id,
+          orderID: orderData.id,
+          orderName: orderData.name,
+          orderCompanyID: orderData.companyid,
+          end_date: carrierOrderData.end_date
+            ? carrierOrderData.end_date.toDate()
+            : null,
+          start_date: carrierOrderData.start_date
+            ? carrierOrderData.start_date.toDate()
+            : null,
+          status: orderData.status,
+          companyID: companyID,
+        });
       }
-
-      return null;
-    });
-
-    const orders = (await Promise.all(orderPromises)).filter(
-      (order) => order !== null
-    ) as Order[];
-    return orders;
+    }
+    return carrierOrders;
   }
 
   async addOrderToCompany(
@@ -522,6 +593,7 @@ export class FirestoreRepository implements IRepository {
         id: generate_id(),
         orderid: createdOrderData!.id,
         truckid: truck,
+        companyid: companyID,
         status: "IDLE",
         start_date: serverTimestamp(),
         end_date: null,
@@ -539,8 +611,7 @@ export class FirestoreRepository implements IRepository {
       name: createdOrderData!.name,
       comment: createdOrderData!.comment,
       status: createdOrderData!.status,
-      // TODO: Change this to actual trucks
-      trucks: [],
+      companyID: createdOrderData!.companyid,
     };
   }
 }

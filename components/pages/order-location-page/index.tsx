@@ -8,22 +8,32 @@ import { TruckLocationMap } from "@/components/organisms/truck-location-map";
 import { OrderTrucksFloatingList } from "@/components/organisms/order-truck-floating-list";
 
 export const OrderLocationPage = (props: OrderLocationPageProps) => {
-  const { orderID } = props;
+  const { orderID, isCarrierOrder } = props;
   const [orderTrucks, setTrucks] = useState<OrderTruckExtended[]>([]);
   const [order, setOrder] = useState<Order>();
   const service = useCarrierService();
   const [selectedTruck, setSelectedTruck] = useState<OrderTruckExtended>();
 
   const fetchOrderTrucks = useCallback(async () => {
-    const t = await service.getOrderTrucks(orderID);
-    setTrucks(t);
-  }, [orderID, service]);
+    let trks;
+    if (isCarrierOrder) {
+      trks = await service.getCarrierOrderTrucks(orderID);
+    } else {
+      trks = await service.getOrderTrucks(orderID);
+    }
+    setTrucks(trks);
+  }, [orderID, service, isCarrierOrder]);
 
   const fetchOrder = useCallback(async () => {
-    const ord = await service.getOrderById(orderID);
-    console.log(ord);
+    let ord;
+    if (isCarrierOrder) {
+      const carrierOrder = await service.getCarrierOrderById(orderID);
+      ord = await service.getOrderById(carrierOrder.orderID);
+    } else {
+      ord = await service.getOrderById(orderID);
+    }
     setOrder(ord);
-  }, [setOrder, service, orderID]);
+  }, [setOrder, service, orderID, isCarrierOrder]);
 
   useEffect(() => {
     fetchOrderTrucks();

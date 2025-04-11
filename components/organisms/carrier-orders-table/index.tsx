@@ -22,7 +22,10 @@ import { Button } from "@/components/ui/button";
 import { Loader2, MoreHorizontal } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useCarrierService } from "@/contexts/TrucksContext";
-import { Order, OrderStatus } from "@/data/repositories/IRepository";
+import {
+  CarrierOrderExtended,
+  OrderStatus,
+} from "@/data/repositories/IRepository";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 
@@ -32,7 +35,7 @@ export function CarrierOrdersTable() {
   const companyID = "some-id-1";
   const service = useCarrierService();
 
-  const [orders, setOrders] = useState<Order[]>([]);
+  const [orders, setOrders] = useState<CarrierOrderExtended[]>([]);
   const loadCarrierOrders = useCallback(async () => {
     try {
       setLoading(true);
@@ -55,7 +58,6 @@ export function CarrierOrdersTable() {
 
   const goToOrderTruckLocations = (orderID: string) => {
     console.log(orderID);
-    // TODO: Implement this page
     router.push(`/carrier-orders/${orderID}/location`);
   };
 
@@ -85,7 +87,9 @@ export function CarrierOrdersTable() {
           <TableRow>
             <TableHead>Название</TableHead>
             <TableHead>Статус</TableHead>
-            <TableHead>Комментарий</TableHead>
+            <TableHead>От компании</TableHead>
+            <TableHead>Дата начала</TableHead>
+            <TableHead>Дата конца</TableHead>
 
             <TableHead className="w-[50px]"></TableHead>
           </TableRow>
@@ -108,7 +112,7 @@ export function CarrierOrdersTable() {
           ) : (
             orders.map((order) => (
               <TableRow key={order.ID}>
-                <TableCell className="font-medium">{order.name}</TableCell>
+                <TableCell className="font-medium">{order.orderName}</TableCell>
 
                 <TableCell>
                   <Badge
@@ -118,7 +122,17 @@ export function CarrierOrdersTable() {
                     {order.status}
                   </Badge>
                 </TableCell>
-                <TableCell>{order?.comment}</TableCell>
+                <TableCell>{order.orderCompanyID}</TableCell>
+                <TableCell>
+                  {order.start_date
+                    ? order.start_date.toDateString()
+                    : "Не начато"}
+                </TableCell>
+                <TableCell>
+                  {order.end_date
+                    ? order.end_date.toDateString()
+                    : "Не закончено"}
+                </TableCell>
 
                 <TableCell>
                   <DropdownMenu>
@@ -134,7 +148,7 @@ export function CarrierOrdersTable() {
                       <DropdownMenuItem
                         onClick={() => goToOrderTruckLocations(order.ID)}
                       >
-                        Перейти к карте
+                        К списку машин
                       </DropdownMenuItem>
                       <DropdownMenuItem>Удалить</DropdownMenuItem>
                       {/* {hasRole("admin") && (

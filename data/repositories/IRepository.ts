@@ -17,8 +17,10 @@ export interface IRepository {
 
   getOrdersByCompany(companyID: string): Promise<Order[]>;
   getOrderById(orderID: string): Promise<Order>;
+  getCarrierOrderById(orderID: string): Promise<CarrierOrder>;
   getOrderTrucks(orderID: string): Promise<OrderTruckExtended[]>;
-  getCarrierOrdersByCompany(companyID: string): Promise<Order[]>;
+  getCarrierOrderTrucks(orderID: string): Promise<OrderTruckExtended[]>;
+  getCarrierOrdersByCompany(companyID: string): Promise<CarrierOrderExtended[]>;
   addOrderToCompany(companyID: string, order: CreateOrderDto): Promise<Order>;
 }
 
@@ -52,19 +54,36 @@ export type TruckFull = Truck & {
 export type Order = {
   ID: string;
   name: string;
+  companyID: string;
   comment?: string;
   status: OrderStatus;
+  start_date?: Date | null;
+  end_date?: Date | null;
 };
 
 export type OrderTruck = {
   truckID: string;
   orderID: string;
+  companyID: string;
   status: OrderTruckStatus;
   start_date?: Date | null;
   end_date?: Date | null;
 };
 export type OrderTruckExtended = OrderTruck & {
   truckName: string;
+};
+
+export type CarrierOrder = {
+  ID: string;
+  orderID: string;
+  companyID: string;
+  status: OrderStatus;
+  start_date?: Date | null;
+  end_date?: Date | null;
+};
+export type CarrierOrderExtended = CarrierOrder & {
+  orderName: string;
+  orderCompanyID: string;
 };
 
 export type OrderStatus =
