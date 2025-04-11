@@ -13,11 +13,12 @@ import {
   where,
 } from "firebase/firestore";
 import {
+  CarrierOrderExtended,
   Company,
   Driver,
   IRepository,
   Order,
-  OrderTruck,
+  OrderTruckExtended,
   OrderTruckStatus,
   Truck,
   TruckFull,
@@ -32,36 +33,67 @@ const generate_id = () => {
 };
 
 export class FirestoreRepository implements IRepository {
-  getOrderById(orderID: string): Promise<Order> {
+  getDrivers(companyID: string): Promise<Driver[]> {
     throw new Error("Method not implemented.");
   }
-  async getOrderTrucks(orderID: string): Promise<OrderTruck[]> {
+  async getOrderById(orderID: string): Promise<Order> {
+    console.log(`*** calling 'getOrderById' with ${orderID} ***`);
     try {
-      const orderTrucksRef = collection(db, "order_trucks");
-      const q = query(orderTrucksRef, where("orderid", "==", orderID));
+      const orderRed = collection(db, "orders");
+      const q = query(orderRed, where("id", "==", orderID));
       const querySnapshot = await getDocs(q);
 
-      if (querySnapshot.empty) {
-        return [];
+      if (!querySnapshot.empty) {
+        const orderDoc = querySnapshot.docs[0];
+        const orderData = orderDoc.data();
+        return {
+          ID: orderData.id,
+          companyID: orderData.companyid,
+          name: orderData.name,
+          status: orderData.status,
+          comment: orderData.comment,
+        };
+      } else {
+        throw new ApiError(404, "Order not found", "404", {});
       }
-
-      const orderTrucks: OrderTruck[] = [];
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        orderTrucks.push({
-          truckID: data.truckid,
-          orderID: data.orderid,
-          status: data.status as OrderTruckStatus,
-          start_date: data.start_date.toDate(),
-        });
-      });
-
-      return orderTrucks;
     } catch (error) {
-      console.error("Error fetching order trucks:", error);
-      throw new ApiError(500, "Failed to fetch order trucks", "500", {});
+      console.error("Error fetching order:", error);
+      throw new ApiError(500, "Failed to fetch order", "500", {});
     }
   }
+
+  async getCarrierOrderById(orderID: string): Promise<CarrierOrderExtended> {
+    console.log(`*** calling 'getCarrierOrderById' with ${orderID} ***`);
+    try {
+      const orderRed = collection(db, "carrier_orders");
+      const q = query(orderRed, where("id", "==", orderID));
+      const querySnapshot = await getDocs(q);
+
+      if (!querySnapshot.empty) {
+        const orderDoc = querySnapshot.docs[0];
+        const orderData = orderDoc.data();
+        const order = await this.getOrderById(orderData.orderid);
+        return {
+          ID: orderData.id,
+          orderID: orderData.orderid,
+          companyID: orderData.companyid,
+          status: orderData.status,
+          end_date: orderData.end_date ? orderData.end_date.toDate() : null,
+          orderName: order.name,
+          orderCompanyID: order.companyID,
+          start_date: orderData.start_date
+            ? orderData.start_date.toDate()
+            : null,
+        };
+      } else {
+        throw new ApiError(404, "Carrier order not found", "404", {});
+      }
+    } catch (error) {
+      console.error("Error fetching Carrier order:", error);
+      throw new ApiError(500, "Failed to fetch Carrier order", "500", {});
+    }
+  }
+
   async getTruckById(truckID: string): Promise<Truck> {
     try {
       const trucksRef = collection(db, "trucks");
@@ -83,6 +115,75 @@ export class FirestoreRepository implements IRepository {
       throw new ApiError(500, "Failed to fetch truck", "500", {});
     }
   }
+
+  async getOrderTrucks(orderID: string): Promise<OrderTruckExtended[]> {
+    try {
+      const orderTrucksRef = collection(db, "order_trucks");
+      const q = query(orderTrucksRef, where("orderid", "==", orderID));
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        return [];
+      }
+
+      const orderTrucks: OrderTruckExtended[] = [];
+      for (const doc of querySnapshot.docs) {
+        const data = doc.data();
+        const truck = await this.getTruckById(data.truckid);
+        orderTrucks.push({
+          truckID: data.truckid,
+          truckName: truck.name,
+          orderID: data.orderid,
+          companyID: data.companyid,
+          status: data.status as OrderTruckStatus,
+          start_date: data.end_date ? data.start_date.toDate() : null,
+          end_date: data.end_date ? data.end_date.toDate() : null,
+        });
+      }
+      return orderTrucks;
+    } catch (error) {
+      console.error("Error fetching order trucks:", error);
+      throw new ApiError(500, "Failed to fetch order trucks", "500", {});
+    }
+  }
+  async getCarrierOrderTrucks(
+    carrierOrderID: string
+  ): Promise<OrderTruckExtended[]> {
+    try {
+      const carrierOrder = await this.getCarrierOrderById(carrierOrderID);
+      const orderTrucksRef = collection(db, "order_trucks");
+      const q = query(
+        orderTrucksRef,
+        where("orderid", "==", carrierOrder.ID),
+        where("companyid", "==", carrierOrder.companyID)
+      );
+      const orderTrucksSnapshot = await getDocs(q);
+
+      if (orderTrucksSnapshot.empty) {
+        return [];
+      }
+
+      const orderTrucks: OrderTruckExtended[] = [];
+      for (const doc of orderTrucksSnapshot.docs) {
+        const data = doc.data();
+        const truck = await this.getTruckById(data.truckid);
+        orderTrucks.push({
+          truckID: data.truckid,
+          truckName: truck.name,
+          orderID: data.orderid,
+          companyID: carrierOrder.companyID,
+          status: data.status as OrderTruckStatus,
+          start_date: data.end_date ? data.start_date.toDate() : null,
+          end_date: data.end_date ? data.end_date.toDate() : null,
+        });
+      }
+      return orderTrucks;
+    } catch (error) {
+      console.error("Error fetching order trucks:", error);
+      throw new ApiError(500, "Failed to fetch order trucks", "500", {});
+    }
+  }
+
   async getTruckLocations(truckName: string): Promise<TruckLocation[]> {
     const q = query(
       collection(db, "geos"),
@@ -208,6 +309,38 @@ export class FirestoreRepository implements IRepository {
       }))
     );
   }
+
+  async getTruckData(truckID: string): Promise<TruckFull> {
+    const q = query(collection(db, "trucks"), where("id", "==", truckID));
+    const truckQuerySnapshot = await getDocs(q);
+    const truckData = truckQuerySnapshot.docs[0].data();
+
+    // Driver Data
+    const driverTruckQuery = query(
+      collection(db, "driver_trucks"),
+      where("truckid", "==", truckID)
+    );
+    const driverTruckQuerySnapshot = await getDocs(driverTruckQuery);
+    const driverTruckData = driverTruckQuerySnapshot.docs[0].data();
+    const driverData = await this.getDriverById(driverTruckData.driverid);
+
+    // Company data
+    const companyTruckQuery = query(
+      collection(db, "company_trucks"),
+      where("truckid", "==", truckID)
+    );
+    const companyTruckQuerySnapshot = await getDocs(companyTruckQuery);
+    const companyTruckData = companyTruckQuerySnapshot.docs[0].data();
+    const companyData = await this.getCompanyById(companyTruckData.companyid);
+
+    return {
+      ID: truckData.truckid,
+      name: truckData.name,
+      company: companyData,
+      driver: driverData,
+    };
+  }
+
   async addTruckToCompany(
     companyID: string,
     truck: CreateTruckDto
@@ -258,23 +391,6 @@ export class FirestoreRepository implements IRepository {
     const trucks: Truck[] = [];
     return trucks;
   }
-
-  async getDrivers(companyID: string): Promise<Driver[]> {
-    console.log("getDrivers");
-    // TODO SA-100: Implement filtering by companyID
-    const q = query(collection(db, "drivers"));
-    const querySnapshot = await getDocs(q);
-    const drivers: Driver[] = [];
-    querySnapshot.forEach((doc) => {
-      const data = doc.data();
-      drivers.push({
-        name: data.name,
-        ID: data.id,
-      });
-    });
-    return drivers;
-  }
-
   async getDriversByCompany(companyID: string): Promise<Driver[]> {
     const companyTrucksQuery = query(
       collection(db, "company_drivers"),
@@ -326,6 +442,42 @@ export class FirestoreRepository implements IRepository {
     return drivers;
   }
 
+  async getDriverById(driverID: string): Promise<Driver | null> {
+    // Если водителя нет в кеше, делаем запрос в базу данных
+    const q = query(collection(db, "drivers"), where("id", "==", driverID));
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+      return null;
+    }
+
+    const driverData = querySnapshot.docs[0].data();
+    const driver: Driver = {
+      ID: driverData.id,
+      name: driverData.name,
+    };
+
+    return driver;
+  }
+
+  async getCompanyById(companyID: string): Promise<Company | null> {
+    // Если водителя нет в кеше, делаем запрос в базу данных
+    const q = query(collection(db, "companies"), where("id", "==", companyID));
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+      return null;
+    }
+
+    const companyData = querySnapshot.docs[0].data();
+    const company: Company = {
+      ID: companyData.id,
+      name: companyData.name,
+    };
+
+    return company;
+  }
+
   async addDriver(companyID: string, driver: Driver): Promise<Driver> {
     try {
       const driverRef = await addDoc(collection(db, "drivers"), {
@@ -343,7 +495,6 @@ export class FirestoreRepository implements IRepository {
     }
   }
 
-  // Orders
   async getOrdersByCompany(companyID: string): Promise<Order[]> {
     const q = query(
       collection(db, "orders"),
@@ -351,59 +502,74 @@ export class FirestoreRepository implements IRepository {
     );
     const querySnapshot = await getDocs(q);
     const orders: Order[] = [];
-    querySnapshot.forEach((doc) => {
-      const data = doc.data();
+    for (const docum of querySnapshot.docs) {
+      const data = docum.data();
       orders.push({
         ID: data.id,
         name: data.name,
         comment: data.comment,
         status: data.status,
+        companyID: data.companyid,
       });
-    });
+    }
+    console.log("Orders", orders);
     return orders;
   }
 
-  async getCarrierOrdersByCompany(companyID: string): Promise<Order[]> {
+  async getTrucksByOrder(orderID: string): Promise<TruckFull[]> {
+    const orderTrucksQuery = query(
+      collection(db, "order_trucks"),
+      where("orderid", "==", orderID)
+    );
+    const orderTrucksSnapshot = await getDocs(orderTrucksQuery);
+
+    const trucks: TruckFull[] = [];
+    for (const orderTruckDoc of orderTrucksSnapshot.docs) {
+      const orderTruckData = orderTruckDoc.data();
+      const truckID = orderTruckData.truckid;
+      const truck = await this.getTruckData(truckID);
+      trucks.push(truck);
+    }
+    return trucks;
+  }
+
+  async getCarrierOrdersByCompany(
+    companyID: string
+  ): Promise<CarrierOrderExtended[]> {
     const carrierOrderQuery = query(
       collection(db, "carrier_orders"),
       where("companyid", "==", companyID)
     );
     const carrierOrderSnapshot = await getDocs(carrierOrderQuery);
 
-    const orderIDs: string[] = [];
-    carrierOrderSnapshot.forEach((doc) => {
-      const data = doc.data();
-      if (data.orderid) {
-        orderIDs.push(data.orderid);
-      }
-    });
-
-    if (orderIDs.length === 0) {
-      return [];
-    }
-
-    const orderPromises = orderIDs.map(async (orderID) => {
-      const q = query(collection(db, "orders"), where("id", "==", orderID));
+    const carrierOrders: CarrierOrderExtended[] = [];
+    for (const carrierOrder of carrierOrderSnapshot.docs) {
+      const carrierOrderData = carrierOrder.data();
+      const q = query(
+        collection(db, "orders"),
+        where("id", "==", carrierOrderData.orderid)
+      );
       const querySnapshot = await getDocs(q);
-
       if (!querySnapshot.empty) {
         const docSnap = querySnapshot.docs[0];
-        const data = docSnap.data();
-        return {
-          ID: data.id,
-          name: data.name,
-          comment: data.comment,
-          status: data.status,
-        } as Order;
+        const orderData = docSnap.data();
+        carrierOrders.push({
+          ID: carrierOrderData.id,
+          orderID: orderData.id,
+          orderName: orderData.name,
+          orderCompanyID: orderData.companyid,
+          end_date: carrierOrderData.end_date
+            ? carrierOrderData.end_date.toDate()
+            : null,
+          start_date: carrierOrderData.start_date
+            ? carrierOrderData.start_date.toDate()
+            : null,
+          status: orderData.status,
+          companyID: companyID,
+        });
       }
-
-      return null;
-    });
-
-    const orders = (await Promise.all(orderPromises)).filter(
-      (order) => order !== null
-    ) as Order[];
-    return orders;
+    }
+    return carrierOrders;
   }
 
   async addOrderToCompany(
@@ -427,6 +593,7 @@ export class FirestoreRepository implements IRepository {
         id: generate_id(),
         orderid: createdOrderData!.id,
         truckid: truck,
+        companyid: companyID,
         status: "IDLE",
         start_date: serverTimestamp(),
         end_date: null,
@@ -444,6 +611,7 @@ export class FirestoreRepository implements IRepository {
       name: createdOrderData!.name,
       comment: createdOrderData!.comment,
       status: createdOrderData!.status,
+      companyID: createdOrderData!.companyid,
     };
   }
 }

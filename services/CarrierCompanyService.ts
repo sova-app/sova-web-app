@@ -2,9 +2,11 @@
 import { CreateTruckDto } from "@/dto/createTruckDto";
 import { DataSourceFactory } from "../data/DataSourceFactory";
 import {
+  CarrierOrder,
+  CarrierOrderExtended,
   Driver,
   Order,
-  OrderTruck,
+  OrderTruckExtended,
   Truck,
   TruckFull,
 } from "../data/repositories/IRepository";
@@ -52,11 +54,23 @@ export class CarrierCompanyService {
     return await this.repository.getOrderById(orderID);
   };
 
-  getOrderTrucks = async (orderID: string): Promise<OrderTruck[]> => {
+  getCarrierOrderById = async (orderID: string): Promise<CarrierOrder> => {
+    return await this.repository.getCarrierOrderById(orderID);
+  };
+
+  getOrderTrucks = async (orderID: string): Promise<OrderTruckExtended[]> => {
     return await this.repository.getOrderTrucks(orderID);
   };
 
-  getCarrierOrdersByCompany = async (companyID: string): Promise<Order[]> => {
+  getCarrierOrderTrucks = async (
+    orderID: string
+  ): Promise<OrderTruckExtended[]> => {
+    return await this.repository.getCarrierOrderTrucks(orderID);
+  };
+
+  getCarrierOrdersByCompany = async (
+    companyID: string
+  ): Promise<CarrierOrderExtended[]> => {
     return await this.repository.getCarrierOrdersByCompany(companyID);
   };
   addOrderToCompany = async (
