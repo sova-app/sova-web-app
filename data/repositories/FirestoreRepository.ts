@@ -239,6 +239,25 @@ export class FirestoreRepository implements IRepository {
     return companies;
   }
 
+  async getCarrierCompanies(): Promise<Company[]> {
+    const q = query(
+      collection(db, "companies"),
+      where("type", "==", "carrier")
+    );
+    const querySnapshot = await getDocs(q);
+
+    const companies: Company[] = [];
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      companies.push({
+        ID: data.id,
+        name: data.name,
+      });
+    });
+
+    return companies;
+  }
+
   async getTruckStatus(truckID: string): Promise<string> {
     const q = query(
       collection(db, "order_trucks"),
@@ -576,36 +595,56 @@ export class FirestoreRepository implements IRepository {
     companyID: string,
     order: CreateOrderDto
   ): Promise<Order> {
-    const driverRef = await addDoc(collection(db, "orders"), {
+    console.log(`*** calling 'addOrderToCompany' ***`);
+    // Order Creation
+    const orderRef = await addDoc(collection(db, "orders"), {
       id: generate_id(),
       name: order.name,
       companyid: companyID,
       status: "INITIATED",
       comment: order.comment || "",
-      start_date: serverTimestamp(),
+      start_date: null,
+      end_date: null,
     });
-    const createdOrder = await getDoc(driverRef);
+    const createdOrder = await getDoc(orderRef);
     const createdOrderData = createdOrder.data();
-    console.log("Created order:", createdOrderData);
-
-    const batch = order.trucks.map((truck: string) => {
+    const trucksBatch = order.truckIDs.map((truckID: string) => {
       const orderTruckData = {
         id: generate_id(),
         orderid: createdOrderData!.id,
-        truckid: truck,
+        truckid: truckID,
         companyid: companyID,
         status: "IDLE",
-        start_date: serverTimestamp(),
+        start_date: null,
         end_date: null,
       };
       const orderTruckRef = doc(db, "order_trucks", orderTruckData.id);
-      console.log("Created order_truck:", truck);
       return setDoc(orderTruckRef, orderTruckData);
     });
 
-    await Promise.all(batch);
+    const carrierOrdersBatch = order.companyIDs?.map(
+      (carrierCompID: string) => {
+        const orderTruckData = {
+          id: generate_id(),
+          orderid: createdOrderData!.id,
+          companyid: carrierCompID,
+          status: "INITIATED",
+          comment: order.comment || "",
+          start_date: null,
+          end_date: null,
+        };
+        const orderTruckRef = doc(db, "carrier_orders", orderTruckData.id);
+        return setDoc(orderTruckRef, orderTruckData);
+      }
+    );
 
-    // 4. Возвращаем заказ
+    await Promise.all(trucksBatch);
+    if (carrierOrdersBatch) {
+      await Promise.all(carrierOrdersBatch);
+    }
+
+    console.log(`*** returning from 'addOrderToCompany' ***`);
+
     return {
       ID: createdOrderData!.id,
       name: createdOrderData!.name,

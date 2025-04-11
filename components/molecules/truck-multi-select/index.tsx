@@ -27,7 +27,7 @@ export function TruckMultiSelect({
 
   return (
     <Popover>
-      <PopoverTrigger asChild>
+      <PopoverTrigger className="col-span-3" asChild>
         <Button
           variant="outline"
           role="combobox"

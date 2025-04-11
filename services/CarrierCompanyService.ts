@@ -4,6 +4,7 @@ import { DataSourceFactory } from "../data/DataSourceFactory";
 import {
   CarrierOrder,
   CarrierOrderExtended,
+  Company,
   Driver,
   Order,
   OrderTruckExtended,
@@ -14,6 +15,10 @@ import { CreateOrderDto } from "@/dto/createOrderDto";
 
 export class CarrierCompanyService {
   private repository = DataSourceFactory.getRepository();
+
+  getCarrierCompanies = async (): Promise<Company[]> => {
+    return await this.repository.getCarrierCompanies();
+  };
 
   getTrucksByCompany = async (companyID: string): Promise<TruckFull[]> => {
     return await this.repository.getTrucksByCompany(companyID);

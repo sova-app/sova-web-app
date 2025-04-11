@@ -1,8 +1,6 @@
 import { Loader } from "@/components/molecules/loader";
 import { TruckMultiSelect } from "@/components/molecules/truck-multi-select";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Command, CommandGroup, CommandItem } from "@/components/ui/command";
 import {
   Dialog,
   DialogContent,
@@ -12,11 +10,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { useCarrierService } from "@/contexts/TrucksContext";
 import { Truck } from "@/data/repositories/IRepository";
 import { CreateOrderDto } from "@/dto/createOrderDto";
@@ -70,7 +63,7 @@ export function OrderFormModal({
     event.preventDefault();
     const formData: CreateOrderDto = {
       name: orderName,
-      trucks: selectedTrucks,
+      truckIDs: selectedTrucks,
       comment: comment,
     };
     const addTruck = async () => {
