@@ -1,11 +1,12 @@
-'use client';
+"use client";
 
-import { AuthGuard } from './AuthGuard';
+import { Roles } from "@/data/repositories/IRepository";
+import { AuthGuard } from "./AuthGuard";
 
 interface WithAuthOptions {
-  requireAuth?: boolean
-  redirectTo?: string
-  allowedRoles?: string[]
+  requireAuth?: boolean;
+  redirectTo?: string;
+  allowedRoles?: Roles[];
 }
 
 export function withAuth<P extends object>(
@@ -17,6 +18,6 @@ export function withAuth<P extends object>(
       <AuthGuard {...options}>
         <Component {...props} />
       </AuthGuard>
-    )
-  }
+    );
+  };
 }

@@ -1,13 +1,7 @@
 import { Loader } from "@/components/molecules/loader";
-import { TruckMultiSelect } from "@/components/molecules/truck-multi-select";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Command,
-  CommandGroup,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
+import { Command, CommandGroup, CommandItem } from "@/components/ui/command";
 import {
   Dialog,
   DialogContent,
@@ -34,7 +28,6 @@ import {
 import { useCarrierService } from "@/contexts/TrucksContext";
 import { Company, Truck } from "@/data/repositories/IRepository";
 import { CreateOrderDto } from "@/dto/createOrderDto";
-import { CommandInput } from "cmdk";
 import { Loader2, X } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
@@ -62,7 +55,7 @@ export function CompanyOrderFormModal({
     {}
   );
   const [selectedTruckIDs, setSelectedTruckIDs] = useState<string[]>([]);
-  const [loadingTrucks, setLoadingTrucks] = useState(false);
+  const [, setLoadingTrucks] = useState(false);
 
   const [orderName, setOrderName] = useState("");
   const [comment, setComment] = useState("");
