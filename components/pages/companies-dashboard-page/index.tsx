@@ -2,6 +2,7 @@ import React from "react";
 import { Header } from "@/components/organisms/header";
 import { SideBar } from "@/components/organisms/side-bar";
 import { CompanyProvider } from "@/contexts/CompanyContext";
+import { CompaniesTable } from "@/components/organisms/companies-table";
 
 export default function CompaniesDashboardPage() {
   return (
@@ -10,7 +11,7 @@ export default function CompaniesDashboardPage() {
         <Header />
         <div className="flex flex-1">
           <SideBar />
-          <h1>companies</h1>
+          <CompaniesTable />
         </div>
       </div>
     </CompanyProvider>
