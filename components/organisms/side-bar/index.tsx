@@ -1,6 +1,12 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { Roles } from "@/data/repositories/IRepository";
-import { Truck as TruckIcon, MapIcon, File as FileIcon } from "lucide-react";
+import {
+  Truck as TruckIcon,
+  MapIcon,
+  File as FileIcon,
+  User as UserIcon,
+  Building as CompanyIcon,
+} from "lucide-react";
 import Link from "next/link";
 import React from "react";
 
@@ -12,7 +18,12 @@ type SidebarLink = {
 };
 
 const sidebarLinks: SidebarLink[] = [
-  { href: "/dashboard", icon: MapIcon, label: "Active Trucks" },
+  {
+    href: "/dashboard",
+    icon: MapIcon,
+    label: "Active Trucks",
+    hidden: (role) => role === Roles.admin,
+  },
   {
     href: "/trucks",
     icon: TruckIcon,
@@ -30,6 +41,18 @@ const sidebarLinks: SidebarLink[] = [
     icon: FileIcon,
     label: "Company Orders",
     hidden: (role) => role !== Roles.expeditor,
+  },
+  {
+    href: "/admin/users-dashboard",
+    icon: UserIcon,
+    label: "Create User",
+    hidden: (role) => role !== Roles.admin,
+  },
+  {
+    href: "/admin/companies-dashboard",
+    icon: CompanyIcon,
+    label: "Create Company",
+    hidden: (role) => role !== Roles.admin,
   },
 ];
 

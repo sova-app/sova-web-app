@@ -1,5 +1,7 @@
+import { CreateCompanyDto } from "@/dto/createCompanyDto";
 import { CreateOrderDto } from "@/dto/createOrderDto";
 import { CreateTruckDto } from "@/dto/createTruckDto";
+import { UpdateCompanyDto } from "@/dto/updateCompanyDto";
 
 export interface IRepository {
   getTruckLocations(userID: string): Promise<TruckLocation[]>;
@@ -23,6 +25,11 @@ export interface IRepository {
   getCarrierOrderTrucks(orderID: string): Promise<OrderTruckExtended[]>;
   getCarrierOrdersByCompany(companyID: string): Promise<CarrierOrderExtended[]>;
   addOrderToCompany(companyID: string, order: CreateOrderDto): Promise<Order>;
+
+  // admin shit
+  getCompanies(): Promise<Company[]>;
+  createCompany(companyDto: CreateCompanyDto): Promise<Company>;
+  updateCompany(companyDto: UpdateCompanyDto): Promise<Company>;
 }
 
 export type TruckLocation = {
@@ -44,6 +51,8 @@ export type Driver = {
 export type Company = {
   ID: string;
   name: string;
+  companyType: string;
+  bin: string;
 };
 
 export type TruckFull = Truck & {
