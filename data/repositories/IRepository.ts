@@ -20,11 +20,16 @@ export interface IRepository {
 
   getOrdersByCompany(companyID: string): Promise<Order[]>;
   getOrderById(orderID: string): Promise<Order>;
-  getCarrierOrderById(orderID: string): Promise<CarrierOrder>;
+  addOrderToCompany(companyID: string, order: CreateOrderDto): Promise<Order>;
   getOrderTrucks(orderID: string): Promise<OrderTruckExtended[]>;
+  updateOrderStatus(orderID: string, status: OrderStatus): Promise<Order>;
+  getCarrierOrderById(orderID: string): Promise<CarrierOrder>;
   getCarrierOrderTrucks(orderID: string): Promise<OrderTruckExtended[]>;
   getCarrierOrdersByCompany(companyID: string): Promise<CarrierOrderExtended[]>;
-  addOrderToCompany(companyID: string, order: CreateOrderDto): Promise<Order>;
+  updateCarrierOrderStatus(
+    orderID: string,
+    status: OrderStatus
+  ): Promise<Order>;
 
   // admin shit
   getCompanies(): Promise<Company[]>;

@@ -79,6 +79,25 @@ export function OrdersTable() {
     router.push(`/orders/${orderID}/location`);
   };
 
+  const updateOrderStatus = useCallback(
+    async (orderID: string, status: OrderStatus) => {
+      try {
+        setLoading(true);
+        await service.updateOrderStatus(orderID, status);
+        loadCompanyOrders();
+      } catch (error) {
+        if (error instanceof Error) {
+          toast.error(
+            error.message || "An error occurred while fetching orders."
+          );
+        }
+      } finally {
+        setLoading(false);
+      }
+    },
+    [service, loadCompanyOrders]
+  );
+
   return (
     <div className="rounded-md border flex-1 p-4 md:p-6 ">
       <h2 className="text-xl font-bold mb-4 flex items-center">
@@ -159,7 +178,21 @@ export function OrdersTable() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuLabel>Действия</DropdownMenuLabel>
-                      <DropdownMenuItem>Редактировить</DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => updateOrderStatus(order.ID, "CANCELLED")}
+                      >
+                        Отменить заказ
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => updateOrderStatus(order.ID, "ACTIVE")}
+                      >
+                        Возобновить заказ
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => updateOrderStatus(order.ID, "DONE")}
+                      >
+                        Завершить заказ
+                      </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => goToOrderTruckLocations(order.ID)}
                       >

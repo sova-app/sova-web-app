@@ -9,6 +9,7 @@ import {
   orderBy,
   query,
   setDoc,
+  updateDoc,
   where,
 } from "firebase/firestore";
 import {
@@ -17,6 +18,7 @@ import {
   Driver,
   IRepository,
   Order,
+  OrderStatus,
   OrderTruckExtended,
   OrderTruckStatus,
   Truck,
@@ -34,19 +36,19 @@ const generate_id = () => {
 };
 
 export class FirestoreRepository implements IRepository {
+  updateCarrierOrderStatus(orderID: string): Promise<Order> {
+    throw new Error("Method not implemented.");
+  }
   getDrivers(companyID: string): Promise<Driver[]> {
     throw new Error("Method not implemented.");
   }
   async getOrderById(orderID: string): Promise<Order> {
     console.log(`*** calling 'getOrderById' with ${orderID} ***`);
     try {
-      const orderRed = collection(db, "orders");
-      const q = query(orderRed, where("id", "==", orderID));
-      const querySnapshot = await getDocs(q);
+      const querySnapshot = await getDoc(doc(db, "orders", orderID));
 
-      if (!querySnapshot.empty) {
-        const orderDoc = querySnapshot.docs[0];
-        const orderData = orderDoc.data();
+      if (querySnapshot.exists()) {
+        const orderData = querySnapshot.data();
         return {
           ID: orderData.id,
           companyID: orderData.companyid,
@@ -527,7 +529,7 @@ export class FirestoreRepository implements IRepository {
     for (const docum of querySnapshot.docs) {
       const data = docum.data();
       orders.push({
-        ID: data.id,
+        ID: docum.id,
         name: data.name,
         comment: data.comment,
         status: data.status,
@@ -696,7 +698,7 @@ export class FirestoreRepository implements IRepository {
 
   async updateCompany(companyDto: UpdateCompanyDto): Promise<Company> {
     try {
-      const companyID = generate_id();
+      // will not work
       const companyRef = doc(db, "companies", companyDto.ID);
       setDoc(companyRef, {
         id: companyDto.ID,
@@ -705,10 +707,26 @@ export class FirestoreRepository implements IRepository {
         bin: companyDto.bin,
       });
 
-      return { ...companyDto, ID: companyID };
+      return { ...companyDto };
     } catch (error) {
       console.error("Ошибка при обновлении компании:", error);
       throw new Error("Не удалось обновить компанию");
+    }
+  }
+
+  async updateOrderStatus(
+    orderID: string,
+    status: OrderStatus
+  ): Promise<Order> {
+    try {
+      console.log("updating", orderID, status);
+      const order = await this.getOrderById(orderID);
+      await updateDoc(doc(db, "orders", orderID), { status });
+      console.log("updated", { ...order, status: status });
+      return { ...order, status: status };
+    } catch (error) {
+      console.error("Ошибка при обновлении заказа:", error);
+      throw new Error("Не удалось обновить статус заказа");
     }
   }
 }

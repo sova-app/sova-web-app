@@ -7,6 +7,7 @@ import {
   Company,
   Driver,
   Order,
+  OrderStatus,
   OrderTruckExtended,
   Truck,
   TruckFull,
@@ -83,5 +84,18 @@ export class CarrierCompanyService {
     order: CreateOrderDto
   ): Promise<Order> => {
     return await this.repository.addOrderToCompany(companyID, order);
+  };
+
+  updateOrderStatus = async (
+    orderID: string,
+    status: OrderStatus
+  ): Promise<Order> => {
+    return await this.repository.updateOrderStatus(orderID, status);
+  };
+  updateCarrierOrderStatus = async (
+    orderID: string,
+    status: OrderStatus
+  ): Promise<Order> => {
+    return await this.repository.updateCarrierOrderStatus(orderID, status);
   };
 }
