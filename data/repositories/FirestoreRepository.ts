@@ -8,7 +8,6 @@ import {
   getDocs,
   orderBy,
   query,
-  serverTimestamp,
   setDoc,
   where,
 } from "firebase/firestore";
@@ -26,6 +25,8 @@ import {
 } from "./IRepository";
 import { CreateTruckDto } from "@/dto/createTruckDto";
 import { CreateOrderDto } from "@/dto/createOrderDto";
+import { CreateCompanyDto } from "@/dto/createCompanyDto";
+import { UpdateCompanyDto } from "@/dto/updateCompanyDto";
 
 const generate_id = () => {
   const ID = Math.random().toString(36).substring(7);
@@ -233,6 +234,8 @@ export class FirestoreRepository implements IRepository {
       companies[data.id] = {
         ID: data.id,
         name: data.name,
+        companyType: data.type,
+        bin: data.bin,
       };
     });
 
@@ -252,6 +255,8 @@ export class FirestoreRepository implements IRepository {
       companies.push({
         ID: data.id,
         name: data.name,
+        companyType: data.type,
+        bin: data.bin,
       });
     });
 
@@ -401,14 +406,10 @@ export class FirestoreRepository implements IRepository {
   }
 
   async removeTruckFromCompany(companyID: string): Promise<Truck[]> {
-    console.log(companyID);
-    const trucks: Truck[] = [];
-    return trucks;
+    throw new Error("Method not implemented.");
   }
   async updateTruckFromCompany(companyID: string): Promise<Truck[]> {
-    console.log(companyID);
-    const trucks: Truck[] = [];
-    return trucks;
+    throw new Error("Method not implemented.");
   }
   async getDriversByCompany(companyID: string): Promise<Driver[]> {
     const companyTrucksQuery = query(
@@ -492,6 +493,8 @@ export class FirestoreRepository implements IRepository {
     const company: Company = {
       ID: companyData.id,
       name: companyData.name,
+      companyType: companyData.type,
+      bin: companyData.bin,
     };
 
     return company;
@@ -652,5 +655,60 @@ export class FirestoreRepository implements IRepository {
       status: createdOrderData!.status,
       companyID: createdOrderData!.companyid,
     };
+  }
+
+  // admin shit
+  async getCompanies(): Promise<Company[]> {
+    const q = query(collection(db, "companies"));
+    const querySnapshot = await getDocs(q);
+
+    const companies: Company[] = [];
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      companies.push({
+        ID: data.id,
+        name: data.name,
+        companyType: data.type,
+        bin: data.bin,
+      });
+    });
+
+    return companies;
+  }
+
+  async createCompany(companyDto: CreateCompanyDto): Promise<Company> {
+    try {
+      const companyID = generate_id();
+      const companyRef = doc(db, "companies", companyID);
+      setDoc(companyRef, {
+        id: companyID,
+        name: companyDto.name,
+        type: companyDto.companyType,
+        bin: companyDto.bin,
+      });
+
+      return { ...companyDto, ID: companyID };
+    } catch (error) {
+      console.error("Ошибка при добавлении компании:", error);
+      throw new Error("Не удалось добавить компании");
+    }
+  }
+
+  async updateCompany(companyDto: UpdateCompanyDto): Promise<Company> {
+    try {
+      const companyID = generate_id();
+      const companyRef = doc(db, "companies", companyDto.ID);
+      setDoc(companyRef, {
+        id: companyDto.ID,
+        name: companyDto.name,
+        type: companyDto.companyType,
+        bin: companyDto.bin,
+      });
+
+      return { ...companyDto, ID: companyID };
+    } catch (error) {
+      console.error("Ошибка при обновлении компании:", error);
+      throw new Error("Не удалось обновить компанию");
+    }
   }
 }
