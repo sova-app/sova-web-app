@@ -134,6 +134,8 @@ export function OrdersTable() {
             <TableHead>Название</TableHead>
             <TableHead>Статус</TableHead>
             <TableHead>Комментарий</TableHead>
+            <TableHead>Дата начала</TableHead>
+            <TableHead>Дата конца</TableHead>
 
             <TableHead className="w-[50px]"></TableHead>
           </TableRow>
@@ -167,6 +169,16 @@ export function OrdersTable() {
                   </Badge>
                 </TableCell>
                 <TableCell>{order?.comment}</TableCell>
+                <TableCell>
+                  {order.start_date
+                    ? order.start_date.toDateString()
+                    : "Не начато"}
+                </TableCell>
+                <TableCell>
+                  {order.end_date
+                    ? order.end_date?.toDateString()
+                    : "Не закончено"}
+                </TableCell>
 
                 <TableCell>
                   <DropdownMenu>

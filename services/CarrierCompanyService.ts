@@ -95,7 +95,7 @@ export class CarrierCompanyService {
   updateCarrierOrderStatus = async (
     orderID: string,
     status: OrderStatus
-  ): Promise<Order> => {
+  ): Promise<CarrierOrderExtended> => {
     return await this.repository.updateCarrierOrderStatus(orderID, status);
   };
 }

@@ -29,7 +29,7 @@ export interface IRepository {
   updateCarrierOrderStatus(
     orderID: string,
     status: OrderStatus
-  ): Promise<Order>;
+  ): Promise<CarrierOrderExtended>;
 
   // admin shit
   getCompanies(): Promise<Company[]>;

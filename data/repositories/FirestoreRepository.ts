@@ -4,11 +4,13 @@ import {
   addDoc,
   collection,
   doc,
+  FieldValue,
   getDoc,
   getDocs,
   orderBy,
   query,
   setDoc,
+  Timestamp,
   updateDoc,
   where,
 } from "firebase/firestore";
@@ -30,15 +32,22 @@ import { CreateOrderDto } from "@/dto/createOrderDto";
 import { CreateCompanyDto } from "@/dto/createCompanyDto";
 import { UpdateCompanyDto } from "@/dto/updateCompanyDto";
 
+type FirestoreUpdatable =
+  | string
+  | number
+  | boolean
+  | null
+  | undefined
+  | Timestamp
+  | FieldValue
+  | Record<string, unknown>; // вложенные объекты
+
 const generate_id = () => {
   const ID = Math.random().toString(36).substring(7);
   return ID;
 };
 
 export class FirestoreRepository implements IRepository {
-  updateCarrierOrderStatus(orderID: string): Promise<Order> {
-    throw new Error("Method not implemented.");
-  }
   getDrivers(companyID: string): Promise<Driver[]> {
     throw new Error("Method not implemented.");
   }
@@ -75,15 +84,15 @@ export class FirestoreRepository implements IRepository {
       if (!querySnapshot.empty) {
         const orderDoc = querySnapshot.docs[0];
         const orderData = orderDoc.data();
-        const order = await this.getOrderById(orderData.orderid);
+        const originOrder = await this.getOrderById(orderData.orderid);
         return {
-          ID: orderData.id,
+          ID: orderDoc.id,
           orderID: orderData.orderid,
           companyID: orderData.companyid,
           status: orderData.status,
           end_date: orderData.end_date ? orderData.end_date.toDate() : null,
-          orderName: order.name,
-          orderCompanyID: order.companyID,
+          orderName: originOrder.name,
+          orderCompanyID: originOrder.companyID,
           start_date: orderData.start_date
             ? orderData.start_date.toDate()
             : null,
@@ -534,6 +543,8 @@ export class FirestoreRepository implements IRepository {
         comment: data.comment,
         status: data.status,
         companyID: data.companyid,
+        start_date: data.start_date?.toDate(),
+        end_date: data.end_date?.toDate(),
       });
     }
     console.log("Orders", orders);
@@ -569,26 +580,23 @@ export class FirestoreRepository implements IRepository {
     const carrierOrders: CarrierOrderExtended[] = [];
     for (const carrierOrder of carrierOrderSnapshot.docs) {
       const carrierOrderData = carrierOrder.data();
-      const q = query(
-        collection(db, "orders"),
-        where("id", "==", carrierOrderData.orderid)
+      const originOrder = await getDoc(
+        doc(db, "orders", carrierOrderData.orderid)
       );
-      const querySnapshot = await getDocs(q);
-      if (!querySnapshot.empty) {
-        const docSnap = querySnapshot.docs[0];
-        const orderData = docSnap.data();
+      if (originOrder.exists()) {
+        const originOrderData = originOrder.data();
         carrierOrders.push({
-          ID: carrierOrderData.id,
-          orderID: orderData.id,
-          orderName: orderData.name,
-          orderCompanyID: orderData.companyid,
+          ID: carrierOrder.id,
+          orderID: originOrder.id,
+          orderName: originOrderData.name,
+          orderCompanyID: originOrderData.companyid,
           end_date: carrierOrderData.end_date
             ? carrierOrderData.end_date.toDate()
             : null,
           start_date: carrierOrderData.start_date
             ? carrierOrderData.start_date.toDate()
             : null,
-          status: orderData.status,
+          status: carrierOrderData.status,
           companyID: companyID,
         });
       }
@@ -631,7 +639,7 @@ export class FirestoreRepository implements IRepository {
       (carrierCompID: string) => {
         const orderTruckData = {
           id: generate_id(),
-          orderid: createdOrderData!.id,
+          orderid: createdOrder.id,
           companyid: carrierCompID,
           status: "INITIATED",
           comment: order.comment || "",
@@ -721,7 +729,36 @@ export class FirestoreRepository implements IRepository {
     try {
       console.log("updating", orderID, status);
       const order = await this.getOrderById(orderID);
-      await updateDoc(doc(db, "orders", orderID), { status });
+      const updateData: Record<string, FirestoreUpdatable> = { status };
+
+      if (status === "ACTIVE") {
+        updateData["start_date"] = Timestamp.now();
+      } else if (status === "CANCELLED" || status === "DONE") {
+        updateData["end_date"] = Timestamp.now();
+      }
+      await updateDoc(doc(db, "orders", orderID), updateData);
+      console.log("updated", { ...order, status: status });
+      return { ...order, status: status };
+    } catch (error) {
+      console.error("Ошибка при обновлении заказа:", error);
+      throw new Error("Не удалось обновить статус заказа");
+    }
+  }
+  async updateCarrierOrderStatus(
+    orderID: string,
+    status: OrderStatus
+  ): Promise<CarrierOrderExtended> {
+    try {
+      console.log("updating carrier", orderID, status);
+      const order = await this.getCarrierOrderById(orderID);
+      const updateData: Record<string, FirestoreUpdatable> = { status };
+
+      if (status === "ACTIVE") {
+        updateData["start_date"] = Timestamp.now();
+      } else if (status === "CANCELLED" || status === "DONE") {
+        updateData["end_date"] = Timestamp.now();
+      }
+      await updateDoc(doc(db, "carrier_orders", orderID), updateData);
       console.log("updated", { ...order, status: status });
       return { ...order, status: status };
     } catch (error) {
